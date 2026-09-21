@@ -1,0 +1,5 @@
+# Audio directory for Lab 1
+Put your input and processed audio files here:
+- input.* (input audio, e.g. speech, music)
+- filtered_*.wav (filtered audio outputs)
+- quantized_*.wav (quantized audio outputs)

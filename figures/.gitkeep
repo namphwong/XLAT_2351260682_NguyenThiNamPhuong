@@ -1,0 +1,7 @@
+# Figures directory for Lab 1
+Stores all generated plots:
+- waveform.png
+- fft.png
+- spectrogram.png
+- filter_response.png
+- quantization_snr.png
