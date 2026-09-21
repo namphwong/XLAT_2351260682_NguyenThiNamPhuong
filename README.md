@@ -16,8 +16,9 @@
 ```text
 Lab01_2351260682_NguyenThiNamPhuong/
 ├── Lab 1.pdf                      # Đề bài thực hành gốc
-├── Lab01_2351260682.ipynb         # Jupyter Notebook thực thi toàn bộ pipeline
-├── README.md                      # Báo cáo chi tiết kết quả thực nghiệm
+├── Lab01_2351260682.ipynb         # Jupyter Notebook thực thi toàn bộ pipeline (đầy đủ code & output)
+├── report_Lab01.pdf               # Báo cáo thực hành định dạng PDF (theo cấu trúc mục 7)
+├── README.md                      # Báo cáo chi tiết kết quả thực nghiệm chuẩn Markdown
 ├── audio/                         # Thư mục chứa các tệp âm thanh
 │   ├── speech_input.wav           # Tệp âm thanh tiếng nói đầu vào (44.1 kHz, 16-bit)
 │   ├── speech_input.mp3           # Tệp âm thanh tiếng nói định dạng MP3 (128 kbps)
@@ -28,8 +29,10 @@ Lab01_2351260682_NguyenThiNamPhuong/
 │   ├── filtered_music_hpf.wav     # Âm thanh âm nhạc qua lọc thông cao (HPF 2 kHz)
 │   ├── quantized_speech_4bit.wav  # Âm thanh tiếng nói lượng tử hóa 4-bit
 │   ├── quantized_speech_8bit.wav  # Âm thanh tiếng nói lượng tử hóa 8-bit
-│   └── quantized_speech_16bit.wav # Âm thanh tiếng nói lượng tử hóa 16-bit
-└── figures/                       # Thư mục lưu trữ đồ thị xuất ra
+│   ├── quantized_speech_16bit.wav # Âm thanh tiếng nói lượng tử hóa 16-bit
+│   ├── resampled_speech_16k.wav   # Âm thanh tiếng nói lấy mẫu lại 16 kHz
+│   └── resampled_speech_8k.wav    # Âm thanh tiếng nói lấy mẫu lại 8 kHz
+└── figures/                       # Thư mục lưu trữ đồ thị xuất ra (300 DPI)
     ├── waveform.png               # Dạng sóng toàn phần và zoom cận cảnh
     ├── fft.png                    # Phổ biên độ FFT và so sánh NFFT
     ├── spectrogram.png            # Biểu đồ Spectrogram đa độ phân giải
@@ -309,7 +312,23 @@ Thực hiện lấy mẫu lại tín hiệu tiếng nói từ gốc $F_s = 44,10
 
 ---
 
-## 4. Trả lời 7 câu hỏi báo cáo lý thuyết
+## 4. Trả lời đầy đủ các câu hỏi thí nghiệm và lý thuyết
+
+### 4.1. Bảng đối chiếu & Trả lời trực diện 7 câu hỏi thí nghiệm độc lập (Mục 5 - Trang 9 Đề bài)
+
+| Thí nghiệm | Thiết lập thực nghiệm | Câu hỏi yêu cầu trong đề bài | Kết quả và Trả lời chi tiết dựa trên số liệu thực tế |
+| :--- | :--- | :--- | :--- |
+| **Sampling & Resampling** | Gốc ($44.1\text{ kHz}$), $16\text{ kHz}$, $8\text{ kHz}$ | *Alias có xuất hiện không? Khi nào chất lượng nghe giảm rõ?* | **Không xuất hiện alias** vì quá trình lấy mẫu lại dùng `scipy.signal.resample_poly` có tích hợp bộ lọc đa pha Kaiser chống chồng phổ, dập tắt toàn bộ phổ vượt quá tần số Nyquist mới ($8\text{ kHz}$ và $4\text{ kHz}$). Chất lượng nghe **giảm rõ rệt ở $8\text{ kHz}$** (chuẩn thoại 2G/PSTN cũ): âm thanh bị nghẹt (*muffled*), mất toàn bộ phụ âm ma sát gió cao tần như `/s/`, `/f/`, `/x/` (nằm trên $4\text{ kHz}$). Ở $16\text{ kHz}$ (chuẩn HD Voice), tai người vẫn nghe rất tự nhiên và rõ ràng vì dải formant của tiếng nói người chủ yếu nằm dưới $8\text{ kHz}$. |
+| **Quantization** | $4$, $8$, $16\text{ bit}$ | *SNR thay đổi thế nào? Quantization noise nghe ở vùng nào rõ hơn?* | SNR tăng tuyến tính **$\approx 6\text{ dB/bit}$** theo quy tắc Rabiner–Schafer (đo được: $4\text{b} \rightarrow 10.32\text{ dB}$, $8\text{b} \rightarrow 33.98\text{ dB}$, $16\text{b} \rightarrow 90.52\text{ dB}$). Nhiễu lượng tử nghe rõ nhất ở **vùng tín hiệu biên độ nhỏ (unvoiced, âm thì thầm, đuôi ngân tắt dần)** và **các khoảng lặng**. Ở vùng tín hiệu mạnh, âm thanh lấn át nhiễu (hiệu ứng che khuất); ở vùng tín hiệu nhỏ, công suất tín hiệu $P_{sig}$ giảm sụt trong khi công suất nhiễu $\sigma_e^2 \approx \Delta^2/12$ giữ nguyên, khiến SNR cục bộ giảm mạnh làm tiếng rè xào xạc lộ rõ nhất. |
+| **FFT** | $NFFT_1 = 2048$ và $NFFT_2 = 65536$ | *$\Delta f$ thay đổi ra sao? NFFT lớn có tăng true resolution không?* | Bước tần số $\Delta f$ giảm mạnh từ $21.53\text{ Hz}$ xuống $0.67\text{ Hz}$ (mật độ bin dày gấp 32 lần). $NFFT$ lớn **HOÀN TOÀN KHÔNG làm tăng độ phân giải vật lý thực tế** (*true physical resolution*). Nó chỉ là phép nội suy lượng giác (*sinc interpolation*) nhờ zero-padding giúp đường cong phổ mịn hơn để dò đỉnh chính xác. Độ phân giải vật lý bị chặn cứng bởi độ dài khung thời gian $T_w = 0.8\text{ s}$ ($\Delta f_{true} \approx 1/T_w = 1.25\text{ Hz}$). |
+| **Frame length** | $10\text{ ms}$, $25\text{ ms}$, $50\text{ ms}$ | *Trade-off time/frequency resolution quan sát được gì?* | **Khung ngắn ($10\text{ ms}$)**: Độ phân giải thời gian rất cao, thấy rõ từng xung đóng mở thanh môn (*pitch pulses*) và ranh giới biến đổi âm sắc nhanh, nhưng các vạch phổ tần số bị nhòe rộng. **Khung dài ($50\text{ ms}$)**: Phân giải tần số cực sắc nét, tách bạch từng sọc hài âm nằm ngang nhưng bị nhòe theo trục thời gian. **Khung $25\text{ ms}$**: Điểm dung hòa tối ưu giữa thời gian và tần số, là chuẩn vàng trong nhận dạng tiếng nói (ASR). |
+| **Windowing** | Rectangular vs Hamming | *Spectral leakage và main-lobe khác nhau thế nào?* | **Rectangular**: Búp chính hẹp ($4\pi/L$) nhưng búp phụ rất cao ($-13.3\text{ dB}$), rò rỉ phổ nghiêm trọng làm sàn nhiễu bị nâng cao che lấp hài nhỏ. **Hamming**: Làm suy giảm biên độ về 0 ở hai mép, triệt tiêu gián đoạn biên, nén búp phụ xuống sâu **$-42.7\text{ dB}$** (khử rò rỉ phổ xuất sắc), đổi lại búp chính rộng gấp đôi ($8\pi/L$) làm các đỉnh phổ bị tù rộng hơn. |
+| **Filtering** | LPF ($2\text{ kHz}$) + HPF ($2\text{ kHz}$) | *Phổ và cảm nhận nghe thay đổi đúng với H(f) không?* | **Hoàn toàn khớp đúng 100%**: Sau LPF, phổ trên $2\text{ kHz}$ bị triệt tiêu $> 45\text{ dB}$, âm thanh nghe trầm ấm, đục (*muffled*) vì mất dải cao. Sau HPF, phổ dưới $2\text{ kHz}$ bị loại bỏ, âm thanh nghe mỏng manh, sắc lạnh (*thin/tinny*), mất hoàn toàn năng lượng âm trầm (bass/trống). |
+| **Coding** | PCM vs MP3 ($128\text{ kbps}$, $256\text{ kbps}$) | *Bit rate, size, compression ratio và chất lượng nghe?* | PCM 16-bit stereo có bitrate $1,411.2\text{ kbps}$. MP3 128 kbps đạt tỷ số nén **$10.97 : 1$ (tiết kiệm $90.88\%$ dung lượng)**; MP3 256 kbps đạt **$5.51 : 1$ (tiết kiệm $81.84\%$)**. Dù nén mất dữ liệu (*lossy*) làm méo dạng sóng toán học (SNR đo được chỉ $\approx 30\text{ dB}$), chất lượng nghe thực tế của MP3 vẫn rất trong trẻo, tự nhiên nhờ mô hình tâm lý thính giác khéo léo giấu nhiễu vào vùng tai người không nghe thấy. |
+
+---
+
+### 4.2. Trả lời chi tiết 7 câu hỏi báo cáo lý thuyết chuyên sâu (Mục 6 - Trang 9-10 Đề bài)
 
 ### Câu 1: Giải thích bằng công thức tại sao $F_s = 44.1\text{ kHz}$ chỉ biểu diễn độc lập đến $22.05\text{ kHz}$?
 **Trả lời**:
