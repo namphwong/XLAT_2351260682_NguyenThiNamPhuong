@@ -9,9 +9,7 @@
 ## Thông tin sinh viên thực hiện
 * **Họ và tên**: Nguyễn Thị Nam Phương
 * **Mã số sinh viên**: 2351260682
-* **Lớp**: 65TTNT (Trí tuệ nhân tạo)
-* **Email sinh viên**: namphwong172@gmail.com
-* **Kho lưu trữ mã nguồn (GitHub)**: [https://github.com/namphwong/Lab01_2351260682_NguyenThiNamPhuong](https://github.com/namphwong/Lab01_2351260682_NguyenThiNamPhuong)
+* **Lớp**: 65TTNT 
 
 ---
 
