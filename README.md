@@ -1,376 +1,304 @@
-# BÁO CÁO THỰC HÀNH LAB 1: PHÂN TÍCH VÀ XỬ LÝ TÍN HIỆU ÂM THANH SỐ
+# BÁO CÁO BÀI THỰC HÀNH LAB 1: XỬ LÝ TÍN HIỆU ÂM THANH SỐ
+
 **Học phần**: CSE457 – Xử lý âm thanh và tiếng nói  
-**Trường Đại học Thủy lợi**
+**Khoa / Trường**: Khoa Công nghệ thông tin – Trường Đại học Thủy lợi  
+**Bộ môn**: Khoa học dữ liệu & Trí tuệ nhân tạo  
 
 ---
 
-## Thông tin sinh viên
-- **Họ và tên**: Nguyễn Thị Nam Phương
-- **Mã sinh viên**: 2351260682
-- **Lớp**: 65TTNT
-- **Môi trường thực nghiệm**: Python 3.11, NumPy, SciPy, Matplotlib, SoundFile, Librosa, FFmpeg
+## Thông tin sinh viên thực hiện
+* **Họ và tên**: Nguyễn Thị Nam Phương
+* **Mã số sinh viên**: 2351260682
+* **Lớp**: 65TTNT (Trí tuệ nhân tạo)
+* **Email sinh viên**: namphwong172@gmail.com
+* **Kho lưu trữ mã nguồn (GitHub)**: [https://github.com/namphwong/Lab01_2351260682_NguyenThiNamPhuong](https://github.com/namphwong/Lab01_2351260682_NguyenThiNamPhuong)
 
 ---
 
-## 1. Cấu trúc thư mục nộp bài
+## 1. Giới thiệu & Mục tiêu bài thực hành
+
+Bài thực hành số 1 là bước nền tảng trong học phần **CSE457 - Xử lý âm thanh và tiếng nói**, nhằm chuyển hóa các nguyên lý xử lý tín hiệu số (DSP) thành kỹ năng lập trình thực tế trên dữ liệu âm thanh số thực. Mục tiêu chính của bài thực hành gồm:
+
+1. **Làm chủ pipeline đọc, kiểm tra và chuẩn hóa dữ liệu âm thanh**: Hiểu rõ ý nghĩa vật lý của tần số lấy mẫu ($F_s$), số kênh (Channels), độ sâu bit (Bit depth), cũng như tính toán các chỉ số thống kê miền thời gian (Peak, RMS, Total Energy, Dynamic Range, Clipping).
+2. **Khảo sát đặc tính miền tần số bằng biến đổi Fourier (FFT)**: Nắm vững mối liên hệ giữa chiều dài khung tín hiệu, số điểm biến đổi $NFFT$, bước tần số giữa các bin ($\Delta f$) và độ phân giải tần số vật lý thực tế.
+3. **Phân tích biểu diễn thời gian – tần số bằng STFT và Spectrogram**: Khám phá nguyên lý đánh đổi giữa độ phân giải thời gian và độ phân giải tần số (Heisenberg–Gabor trade-off) qua các khung cửa sổ thời gian khác nhau ($10\text{ ms}$, $25\text{ ms}$, $50\text{ ms}$).
+4. **Đo đạc và kiểm soát hiện tượng rò rỉ phổ (Spectral Leakage)**: Đánh giá sự khác biệt giữa cửa sổ Chữ nhật (Rectangular) và cửa sổ Hamming về độ rộng búp sóng chính (*main-lobe*) và mức suy giảm búp phụ (*side-lobe attenuation*).
+5. **Thiết kế bộ lọc số FIR pha tuyến tính (Linear-Phase FIR Filter)**: Ứng dụng phương pháp cửa sổ để xây dựng bộ lọc thông thấp (LPF) và thông cao (HPF), phân tích đáp ứng biên độ $|H(f)|$, kiểm chứng độ trễ nhóm không đổi ($\tau_g$) và đánh giá cảm nhận thính giác trước/sau lọc.
+6. **Nghiên cứu quá trình Lượng tử hóa, Resampling và Mã hóa nén**: Kiểm chứng thực nghiệm quy tắc Rabiner–Schafer ($6\text{ dB/bit}$) và vai trò của dải dự trữ biên độ (*headroom*); tìm hiểu cơ chế lọc chống chồng phổ (*anti-aliasing*) khi chuyển đổi tần số lấy mẫu; so sánh tốc độ bit và tỷ số nén giữa chuẩn PCM không nén và MP3 nén cảm thụ thính giác (*perceptual coding*).
+
+---
+
+## 2. Cấu trúc thư mục dự án
+
+Toàn bộ mã nguồn, dữ liệu âm thanh, hình ảnh đồ thị và tài liệu báo cáo được tổ chức chặt chẽ theo đúng quy định tại Mục 7 của đề cương Lab 1:
+
 ```text
 Lab01_2351260682_NguyenThiNamPhuong/
-├── Lab 1.pdf                      # Đề bài thực hành gốc
-├── Lab01_2351260682.ipynb         # Jupyter Notebook thực thi toàn bộ pipeline (đầy đủ code & output)
-├── report_Lab01.pdf               # Báo cáo thực hành định dạng PDF (theo cấu trúc mục 7)
+├── Lab 1.pdf                      # Đề bài và tài liệu hướng dẫn thực hành
+├── Lab01_2351260682.ipynb         # Jupyter Notebook thực thi toàn bộ pipeline (Code & Output đầy đủ)
+├── report_Lab01.pdf               # Báo cáo thực hành bản PDF tổng hợp
 ├── README.md                      # Báo cáo chi tiết kết quả thực nghiệm chuẩn Markdown
-├── audio/                         # Thư mục chứa các tệp âm thanh
-│   ├── speech_input.wav           # Tệp âm thanh tiếng nói đầu vào (44.1 kHz, 16-bit)
-│   ├── speech_input.mp3           # Tệp âm thanh tiếng nói định dạng MP3 (128 kbps)
-│   ├── music_input.wav            # Tệp âm thanh âm nhạc đầu vào (44.1 kHz, 16-bit)
-│   ├── music_input.mp3            # Tệp âm thanh âm nhạc định dạng MP3 (256 kbps)
-│   ├── filtered_speech_lpf.wav    # Âm thanh tiếng nói qua lọc thông thấp (LPF 2 kHz)
-│   ├── filtered_music_lpf.wav     # Âm thanh âm nhạc qua lọc thông thấp (LPF 2 kHz)
-│   ├── filtered_music_hpf.wav     # Âm thanh âm nhạc qua lọc thông cao (HPF 2 kHz)
-│   ├── quantized_speech_4bit.wav  # Âm thanh tiếng nói lượng tử hóa 4-bit
-│   ├── quantized_speech_8bit.wav  # Âm thanh tiếng nói lượng tử hóa 8-bit
-│   ├── quantized_speech_16bit.wav # Âm thanh tiếng nói lượng tử hóa 16-bit
-│   ├── resampled_speech_16k.wav   # Âm thanh tiếng nói lấy mẫu lại 16 kHz
-│   └── resampled_speech_8k.wav    # Âm thanh tiếng nói lấy mẫu lại 8 kHz
-└── figures/                       # Thư mục lưu trữ đồ thị xuất ra (300 DPI)
-    ├── waveform.png               # Dạng sóng toàn phần và zoom cận cảnh
-    ├── fft.png                    # Phổ biên độ FFT và so sánh NFFT
-    ├── spectrogram.png            # Biểu đồ Spectrogram đa độ phân giải
-    ├── window_comparison.png      # So sánh cửa sổ Rectangular vs Hamming
-    ├── filter_response.png        # Đáp ứng tần số bộ lọc FIR LPF và HPF
-    ├── filter_effect.png          # Phổ so sánh trước và sau lọc
-    ├── quantization_snr.png       # Đồ thị SNR thực nghiệm vs lý thuyết
-    └── resampling_comparison.png  # Phổ so sánh khi lấy mẫu lại 16kHz & 8kHz
+├── .gitignore                     # Cấu hình bỏ qua file rác / cache
+├── audio/                         # Thư mục lưu trữ 13 tệp âm thanh thực nghiệm
+│   ├── speech_input.wav           # Âm thanh tiếng nói đầu vào gốc (44.1 kHz, 16-bit PCM stereo)
+│   ├── speech_input.mp3           # Âm thanh tiếng nói nén MP3 (128 kbps)
+│   ├── music_input.wav            # Âm thanh âm nhạc đầu vào gốc (44.1 kHz, 16-bit PCM stereo)
+│   ├── music_input.mp3            # Âm thanh âm nhạc nén MP3 (256 kbps)
+│   ├── filtered_speech_lpf.wav    # Tiếng nói sau lọc thông thấp (LPF 2 kHz)
+│   ├── filtered_music_lpf.wav     # Âm nhạc sau lọc thông thấp (LPF 2 kHz)
+│   ├── filtered_music_hpf.wav     # Âm nhạc sau lọc thông cao (HPF 2 kHz)
+│   ├── quantized_speech_4bit.wav  # Tiếng nói sau lượng tử hóa 4-bit
+│   ├── quantized_speech_8bit.wav  # Tiếng nói sau lượng tử hóa 8-bit
+│   ├── quantized_speech_16bit.wav # Tiếng nói sau lượng tử hóa 16-bit
+│   ├── resampled_speech_16k.wav   # Tiếng nói sau lấy mẫu lại về 16 kHz (HD Voice)
+│   └── resampled_speech_8k.wav    # Tiếng nói sau lấy mẫu lại về 8 kHz (PSTN/2G)
+└── figures/                       # Thư mục lưu trữ 8 đồ thị khoa học độ phân giải cao (300 DPI)
+    ├── waveform.png               # Dạng sóng toàn phần và zoom cận cảnh 2 đoạn tương phản
+    ├── fft.png                    # Phổ biên độ FFT, 5 đỉnh hài âm và so sánh NFFT
+    ├── spectrogram.png            # Biểu đồ Spectrogram với 3 độ dài khung (10ms, 25ms, 50ms)
+    ├── window_comparison.png      # So sánh búp chính và búp phụ Rectangular vs Hamming
+    ├── filter_response.png        # Đáp ứng xung h[n], biên độ |H(f)| và độ trễ nhóm FIR
+    ├── filter_effect.png          # Dạng sóng và phổ so sánh trước và sau khi lọc số
+    ├── quantization_snr.png       # Đồ thị SNR thực nghiệm vs lý thuyết và dạng sóng sai số
+    └── resampling_comparison.png  # Dạng sóng và phổ so sánh khi lấy mẫu lại 16kHz & 8kHz
 ```
 
 ---
 
-## 2. Kế hoạch và tiến độ thực hiện
-- [x] **Phase 1**: Setup môi trường, cấu trúc thư mục, chuẩn bị dữ liệu âm thanh và khởi tạo Notebook / Báo cáo.
-- [x] **Phase 2**: Thực hiện Khối A & B (Đọc metadata, chuẩn hóa, phân tích waveform, RMS/Peak/Energy).
-- [x] **Phase 3**: Thực hiện Khối C, D, E (Biến đổi FFT, STFT Spectrogram, thí nghiệm cửa sổ).
-- [x] **Phase 4**: Thực hiện Khối F (Thiết kế bộ lọc số FIR, đáp ứng $H(f)$, lọc âm thanh và xuất file).
-- [x] **Phase 5**: Thực hiện Khối G (Lượng tử hóa, tính SNR, resampling và phân tích nén mã hóa).
-- [x] **Phase 6**: Trả lời 7 câu hỏi lý thuyết, kiểm thử toàn diện (Run All) và đóng gói nộp bài.
+## 3. Mô tả Bộ dữ liệu âm thanh thực nghiệm
+
+Theo yêu cầu của bài thực hành, em đã chuẩn bị một bộ dữ liệu độc lập gồm 02 tập âm thanh đại diện cho hai trường hợp tín hiệu âm học điển hình:
+
+1. **Tệp tiếng nói (`audio/speech_input.wav` - Speech)**:
+   * *Nguồn gốc & Ngữ cảnh*: Bản ghi âm giọng đọc chuẩn phát thanh, thời lượng $14.84\text{ giây}$.
+   * *Đặc trưng âm học*: Tín hiệu không dừng (*non-stationary*), cấu thành từ các đoạn nguyên âm hữu thanh (*voiced*) giàu tuần hoàn thanh quản đan xen với các phụ âm vô thanh (*unvoiced*) có dạng tạp âm ngẫu nhiên và các khoảng lặng ngắt nghỉ tự nhiên.
+   * *Đoạn tương phản được chọn khảo sát ($0.8\text{ s}$)*:
+     - **Đoạn Hữu thanh (Voiced)**: từ $3.4\text{ s}$ đến $4.2\text{ s}$ (âm tiết mở với dây thanh âm rung mạnh).
+     - **Đoạn Vô thanh (Unvoiced)**: từ $2.5\text{ s}$ đến $3.3\text{ s}$ (phụ âm gió xát không rung dây thanh).
+
+2. **Tệp âm nhạc hòa tấu (`audio/music_input.wav` - Music)**:
+   * *Nguồn gốc & Ngữ cảnh*: Tác phẩm khí nhạc hòa tấu cổ điển (Acoustic Chamber Music), thời lượng $45.84\text{ giây}$.
+   * *Đặc trưng âm học*: Dải tần rộng từ âm trầm của đàn cello đến âm cao của đàn violin/flute, có tính tự tương quan cao và các chùm bồi âm (hài âm) rất rõ nét.
+   * *Đoạn tương phản được chọn khảo sát ($0.8\text{ s}$)*:
+     - **Đoạn Cao trào (Forte)**: từ $37.8\text{ s}$ đến $38.6\text{ s}$ (toàn bộ nhạc cụ hòa tấu với cường độ âm thanh lớn).
+     - **Đoạn Dạo đầu yên tĩnh (Piano)**: từ $0.0\text{ s}$ đến $0.8\text{ s}$ (tiếng nhạc cụ độc tấu nhẹ nhàng).
 
 ---
 
-## 3. Tóm tắt kết quả thực nghiệm theo khối (Khối A → G)
+## 4. Kết quả Thực nghiệm & Bàn luận Kỹ thuật
 
-### Khối A: Đọc và kiểm tra dữ liệu âm thanh
-Tập dữ liệu thực nghiệm gồm 01 tệp tiếng nói (`speech_input.wav`) và 01 tệp âm nhạc (`music_input.wav`). Tín hiệu stereo được chuyển đổi sang mono bằng công thức trung bình cộng hai kênh:
-$$x_{mono}[n] = \frac{x_L[n] + x_R[n]}{2}$$
-Sau đó biên độ được chuẩn hóa về đoạn $[-1.0, 1.0]$.
+### 4.1. Khối A & B: Đặc tính Miền thời gian và Chuẩn hóa Năng lượng
 
-*Bảng metadata trích xuất từ hai tệp âm thanh thực nghiệm:*
+#### 1. Đọc tệp, trích xuất siêu dữ liệu và chuyển đổi Mono
+Dữ liệu gốc được tải vào bộ nhớ dưới dạng mảng dấu phẩy động 64-bit (`float64`). Để thuận tiện cho việc phân tích toán học mà vẫn bảo toàn năng lượng hai tai, tín hiệu Stereo được gộp thành Mono bằng công thức trung bình cộng hai kênh: $x_{mono}[n] = \frac{x_L[n] + x_R[n]}{2}$. Tín hiệu sau đó được chuẩn hóa biên độ về khoảng an toàn $[-1.0, 1.0]$.
 
-| Thuộc tính kỹ thuật | Tệp Tiếng nói (`speech_input.wav`) | Tệp Âm nhạc (`music_input.wav`) |
-| :--- | :---: | :---: |
-| **Định dạng lưu trữ / Subtype** | WAV (PCM 16-bit nguyên) | WAV (PCM 16-bit nguyên) |
-| **Tần số lấy mẫu ($F_s$)** | $44,100\text{ Hz}$ | $44,100\text{ Hz}$ |
-| **Tần số Nyquist ($F_s / 2$)** | $22,050\text{ Hz}$ | $22,050\text{ Hz}$ |
-| **Số kênh (Channels)** | 2 (Stereo) | 2 (Stereo) |
-| **Số mẫu (Frames / Samples)** | $654,444\text{ mẫu}$ | $2,021,760\text{ mẫu}$ |
-| **Thời lượng (Duration)** | $14.840\text{ giây}$ | $45.845\text{ giây}$ |
-| **Dung lượng tệp trên đĩa** | $2,617,820\text{ bytes}$ ($2.497\text{ MB}$) | $8,087,084\text{ bytes}$ ($7.712\text{ MB}$) |
-| **Peak Mono ($|x|_{\max}$)** | $0.81030$ ($-1.83\text{ dBFS}$) | $0.78564$ ($-2.10\text{ dBFS}$) |
-| **RMS Kênh Trái ($x_L$)** | $0.11209$ ($-19.01\text{ dBFS}$) | $0.07247$ ($-22.80\text{ dBFS}$) |
-| **RMS Kênh Phải ($x_R$)** | $0.11209$ ($-19.01\text{ dBFS}$) | $0.07247$ ($-22.80\text{ dBFS}$) |
-| **RMS Mono ($x_{mono}$)** | $0.11209$ ($-19.01\text{ dBFS}$) | $0.07247$ ($-22.80\text{ dBFS}$) |
-| **Tổng năng lượng ($E = \sum x^2[n]$)** | $8,222.96$ | $10,618.33$ |
-| **Số mẫu bị xén (Clipping $\ge 0.999$)** | $0\text{ mẫu}$ ($0.0000\%$) | $0\text{ mẫu}$ ($0.0000\%$) |
+*Bảng tổng hợp tham số kỹ thuật và chỉ số năng lượng miền thời gian:*
 
-**Nhận xét kỹ thuật Khối A:**
-1. Cả hai tệp đều có tần số lấy mẫu chuẩn phòng thu $F_s = 44,100\text{ Hz}$ với độ phân giải lượng tử 16-bit (`PCM_16`). Dải tần số Nyquist đạt tới $22,050\text{ Hz}$, đáp ứng hoàn hảo tiêu chuẩn bảo toàn tần số cao nhất mà tai người có thể cảm nhận được ($20\text{ Hz} - 20\text{ kHz}$).
-2. Cường độ năng lượng trên hai kênh trái và phải có sự cân bằng cao (RMS chênh lệch xấp xỉ $0\text{ dB}$). Quá trình chuyển đổi từ Stereo sang Mono qua trung bình cộng không gây ra hiện tượng triệt tiêu pha (*phase cancellation*), giữ trọn vẹn đặc trưng năng lượng của nguồn phát.
-3. Cả hai tệp đều có biên độ đỉnh nằm an toàn dưới ngưỡng full-scale ($< 1.0$), với $0$ mẫu nào chạm ngưỡng xén ngọn (clipping), đảm bảo dữ liệu đầu vào sạch cho các phép phân tích số tiếp theo.
-
----
-
-### Khối B: Phân tích miền thời gian
-Thực hiện vẽ dạng sóng toàn phần và trích xuất hai phân đoạn đối lập thời lượng $0.8\text{ s}$ trên mỗi tệp:
-- **Tiếng nói (Speech)**:
-  - Đoạn 1 ($3.4\text{s} - 4.2\text{s}$): Âm hữu thanh (*Voiced sound* / nguyên âm) mang tính tuần hoàn rõ nét.
-  - Đoạn 2 ($2.5\text{s} - 3.3\text{s}$): Âm vô thanh / chuyển tiếp (*Unvoiced sound* / phụ âm) mang đặc tính tạp âm ngẫu nhiên.
-- **Âm nhạc (Music)**:
-  - Đoạn 1 ($37.8\text{s} - 38.6\text{s}$): Cao trào hòa tấu (*Forte / Tutti*) nhiều nhạc cụ dây cùng diễn tấu.
-  - Đoạn 2 ($0.0\text{s} - 0.8\text{s}$): Khúc dạo đầu nhẹ nhàng (*Piano / Intro*).
-
-*Bảng so sánh số liệu phân tích miền thời gian giữa các phân đoạn:*
-
-| Tệp âm thanh | Phân đoạn phân tích | Khoảng thời gian | Peak | Peak (dBFS) | RMS | RMS (dBFS) | Năng lượng $E$ |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Tiếng nói (Speech)** | Đoạn 1: Âm hữu thanh (Voiced) | $3.4\text{s} - 4.2\text{s}$ | $0.78494$ | $-2.10\text{ dBFS}$ | $0.15614$ | $-16.13\text{ dBFS}$ | $860.07$ |
-| | Đoạn 2: Âm vô thanh (Unvoiced) | $2.5\text{s} - 3.3\text{s}$ | $0.34793$ | $-9.17\text{ dBFS}$ | $0.03297$ | $-29.64\text{ dBFS}$ | $38.34$ |
-| | **Chênh lệch (Đoạn 1 / Đoạn 2)** | — | **$2.26$ lần** | **$+7.07\text{ dB}$** | **$4.74$ lần** | **$+13.51\text{ dB}$** | **$22.43$ lần** |
-| **Âm nhạc (Music)** | Đoạn 1: Cao trào Forte | $37.8\text{s} - 38.6\text{s}$ | $0.78564$ | $-2.10\text{ dBFS}$ | $0.16680$ | $-15.56\text{ dBFS}$ | $981.59$ |
-| | Đoạn 2: Dạo đầu nhẹ nhàng | $0.0\text{s} - 0.8\text{s}$ | $0.40189$ | $-7.92\text{ dBFS}$ | $0.07635$ | $-22.34\text{ dBFS}$ | $205.64$ |
-| | **Chênh lệch (Đoạn 1 / Đoạn 2)** | — | **$1.95$ lần** | **$+5.82\text{ dB}$** | **$2.18$ lần** | **$+6.79\text{ dB}$** | **$4.77$ lần** |
-
-![Đồ thị Waveform toàn phần và chi tiết các phân đoạn](figures/waveform.png)
-
-**Nhận xét kỹ thuật Khối B:**
-1. **Đặc trưng âm học của Tiếng nói**:
-   - Ở đoạn âm hữu thanh ($3.4\text{s} - 4.2\text{s}$), dạng sóng xuất hiện các đỉnh xung định kỳ lặp lại rõ rệt phản ánh tần số đóng mở cơ bản của dây thanh quản ($F_0$). Năng lượng RMS đạt $0.15614$ ($-16.13\text{ dBFS}$).
-   - Ở đoạn âm vô thanh ($2.5\text{s} - 3.3\text{s}$), luồng khí đi qua thanh môn mở tạo ra dao động nhiễu loạn ngẫu nhiên không có chu kỳ, RMS giảm xuống chỉ còn $0.03297$ ($-29.64\text{ dBFS}$). Năng lượng hiệu dụng của đoạn hữu thanh gấp tới **$4.74$ lần ($+13.51\text{ dB}$)** so với đoạn vô thanh.
-2. **Đặc trưng âm học của Âm nhạc**:
-   - Đoạn cao trào Forte ($37.8\text{s} - 38.6\text{s}$) có sự tham gia đồng loạt của toàn bộ dàn dây (violon, cello, contrabass), tạo ra sự chồng chập hòa âm phức tạp và mật độ biên độ rất dày với $\text{RMS} = 0.16680$.
-   - Đoạn dạo đầu ($0.0\text{s} - 0.8\text{s}$) mang tính chất mở đề thưa thớt hơn, $\text{RMS} = 0.07635$. Độ tương phản dải động giữa hai đoạn đạt **$6.79\text{ dB}$** (chênh lệch gấp $2.18$ lần về RMS).
-3. **Đánh giá mức độ an toàn**: Cả hai tệp tín hiệu đều có dải biên độ nằm trọn trong khoảng $[-0.82, +0.82]$, không xuất hiện flat-topping (hiện tượng đỉnh sóng bị san phẳng do vượt ngưỡng $1.0$), chứng minh hệ thống thu âm không bị hiện tượng bão hòa tín hiệu.
-
----
-
-### Khối C: Phân tích miền tần số bằng FFT
-Thực hiện trên phân đoạn ổn định $37.8\text{s} - 38.6\text{s}$ của tệp âm nhạc ($N = 35,281$ mẫu $\approx 0.8\text{ s}$), nhân cửa sổ Hamming để khử gián đoạn biên và tính toán biến đổi Fourier nhanh (FFT) trên 2 cấu hình $NFFT_1 = 2048$ và $NFFT_2 = 65536$.
-
-*Bảng so sánh cấu hình phân tích FFT:*
-
-| Thông số kỹ thuật | Cấu hình $NFFT_1 = 2048$ | Cấu hình $NFFT_2 = 65536$ | Ý nghĩa kỹ thuật |
+| Thuộc tính / Chỉ số đo đạc | Tệp Tiếng nói (`speech_input`) | Tệp Âm nhạc (`music_input`) | Ý nghĩa vật lý & Kỹ thuật |
 | :--- | :---: | :---: | :--- |
-| **Số điểm FFT ($NFFT$)** | $2,048$ | $65,536$ | Bậc độ dài biến đổi DFT |
-| **Bước tần số ($\Delta f = F_s / NFFT$)** | $\approx 21.5332\text{ Hz}$ | $\approx 0.6729\text{ Hz}$ | Khoảng cách giữa hai bin tần số kế tiếp |
-| **Độ phân giải vật lý thực tế ($\Delta f_{true}$)** | $\approx 1.25\text{ Hz}$ ($1/0.8\text{s}$) | $\approx 1.25\text{ Hz}$ ($1/0.8\text{s}$) | Bị giới hạn bởi chiều dài cửa sổ thời gian |
-| **Dạng biểu diễn đồ thị** | Các điểm phổ thưa, gấp khúc | Đường cong phổ trơn mịn, liên tục | Nội suy phổ mịn màng (Interpolation) |
+| **Tần số lấy mẫu ($F_s$)** | $44,100\text{ Hz}$ | $44,100\text{ Hz}$ | Chuẩn Audio CD, đáp ứng định lý Nyquist cho thính giác người |
+| **Số kênh âm thanh** | $2\text{ kênh (Stereo)}$ | $2\text{ kênh (Stereo)}$ | Âm thanh không gian nổi hai tai |
+| **Độ sâu bit (Bit depth)** | $16\text{ bit PCM}$ | $16\text{ bit PCM}$ | 65,536 mức lượng tử hóa rời rạc |
+| **Thời lượng phát (Duration)** | $14.84\text{ s}$ ($654,444\text{ mẫu}$) | $45.84\text{ s}$ ($2,021,760\text{ mẫu}$) | Đủ dài để quan sát cả biến đổi vi mô lẫn vĩ mô |
+| **Dung lượng tệp trên đĩa** | $2.497\text{ MB}$ | $7.712\text{ MB}$ | Kích thước dữ liệu PCM nhị phân thực tế |
+| **Biên độ đỉnh (Peak Amplitude)** | $0.99997$ | $1.00000$ | Biên độ tối đa đã chuẩn hóa về ngưỡng cực đại |
+| **Số mẫu quá tải (Clipping)** | **$0\text{ mẫu (0.0000\%)}$** | **$0\text{ mẫu (0.0000\%)}$** | Tuyệt đối an toàn, không bị hiện tượng méo xén biên |
+| **Giá trị hiệu dụng (RMS toan dải)** | **$0.11209$ ($-19.01\text{ dBFS}$)** | **$0.07247$ ($-22.80\text{ dBFS}$)** | Tiếng nói có mật độ năng lượng trung bình lớn hơn |
+| **Tổng năng lượng (Total Energy)** | $8,223.16$ | $10,610.14$ | $\sum x^2[n]$ phản ánh tổng công tích tụ |
 
-*Bảng các đỉnh phổ hài âm nổi bật nhất trích xuất được ($NFFT = 65536$):*
+#### 2. Phân tích so sánh 2 phân đoạn tương phản ($0.8\text{ s}$)
+* **Đối với Tiếng nói**:
+  - Đoạn Hữu thanh (*Voiced* - $3.4\text{s} \rightarrow 4.2\text{s}$): $RMS = 0.2038$ ($-13.82\text{ dBFS}$), $Energy = 7,333.37$.
+  - Đoạn Vô thanh (*Unvoiced* - $2.5\text{s} \rightarrow 3.3\text{s}$): $RMS = 0.0430$ ($-27.33\text{ dBFS}$), $Energy = 326.68$.
+  - *Nhận xét*: Đoạn hữu thanh có mức năng lượng hiệu dụng gấp **$4.74\text{ lần}$** ($+13.51\text{ dB}$) so với đoạn vô thanh. Dạng sóng hữu thanh thể hiện tính tuần hoàn cực rõ (các đỉnh xung thanh môn rung đều đặn), trong khi đoạn vô thanh có biên độ nhỏ, mật độ dao động nhanh ngẫu nhiên không có chu kỳ cơ bản.
+* **Đối với Âm nhạc**:
+  - Đoạn Cao trào (*Forte* - $37.8\text{s} \rightarrow 38.6\text{s}$): $RMS = 0.1654$ ($-15.63\text{ dBFS}$), $Energy = 4,834.33$.
+  - Đoạn Dạo đầu (*Piano* - $0.0\text{s} \rightarrow 0.8\text{s}$): $RMS = 0.0760$ ($-22.38\text{ dBFS}$), $Energy = 1,021.28$.
+  - *Nhận xét*: Phân đoạn cao trào hòa tấu có RMS lớn gấp **$2.18\text{ lần}$** ($+6.79\text{ dB}$) so với phân đoạn dạo đầu, thể hiện sự mở rộng dải động (*dynamic range*) phong phú của tác phẩm khí nhạc.
 
-| Thứ tự đỉnh | Tần số đo được ($f_k$) | Biên độ tương đối (dB) | Ý nghĩa âm sắc / Hài âm |
-| :---: | :---: | :---: | :--- |
-| **Đỉnh 1** | **$388.94\text{ Hz}$** | **$0.00\text{ dB}$** | Tần số chủ đạo mang năng lượng mạnh nhất (G4/A4 dải bè violon) |
-| **Đỉnh 2** | **$467.67\text{ Hz}$** | **$-7.05\text{ dB}$** | Hài âm cộng hưởng bè trung |
-| **Đỉnh 3** | **$581.40\text{ Hz}$** | **$-7.90\text{ dB}$** | Thành phần hòa âm bậc cao của hợp âm |
-| **Đỉnh 4** | **$872.77\text{ Hz}$** | **$-6.16\text{ dB}$** | Bội âm bậc cao (hài âm octave/quãng 5) |
-| **Đỉnh 5** | **$1173.56\text{ Hz}$** | **$-7.73\text{ dB}$** | Hài âm dải cao tạo độ sáng (*brightness*) cho dàn dây |
+![Dạng sóng miền thời gian toàn phần và zoom cận cảnh](figures/waveform.png)
+
+---
+
+### 4.2. Khối C & E: Phân tích Miền tần số (FFT) và Hiện tượng Rò rỉ phổ (Windowing)
+
+#### 1. Biến đổi Fourier nhanh (FFT) và Ảnh hưởng của NFFT
+Thực hiện cắt phân đoạn $0.8\text{ s}$ ổn định của âm nhạc ($37.8\text{ s} \rightarrow 38.6\text{ s}$, $N = 35,280\text{ mẫu}$), nhân với cửa sổ Hamming rồi biến đổi FFT với hai cấu hình:
+- $NFFT_1 = 2,048$: Bước tần số giữa hai bin liền kề là $\Delta f_1 = \frac{44,100}{2,048} \approx 21.53\text{ Hz}$.
+- $NFFT_2 = 65,536$: Bước tần số giữa hai bin liền kề là $\Delta f_2 = \frac{44,100}{65,536} \approx 0.67\text{ Hz}$.
+
+*Phát hiện 5 đỉnh hài âm rõ nét nhất của nhạc cụ:*
+Bằng thuật toán dò đỉnh cục bộ (`scipy.signal.find_peaks`) trên phổ $NFFT_2$, đã định vị chính xác 5 thành phần hài âm nổi trội:
+1. **$f_1 = 388.94\text{ Hz}$** (Biên độ: $-31.81\text{ dB}$)
+2. **$f_2 = 467.67\text{ Hz}$** (Biên độ: $-29.74\text{ dB}$)
+3. **$f_3 = 581.40\text{ Hz}$** (Biên độ: $-28.32\text{ dB}$ - Đỉnh trội nhất)
+4. **$f_4 = 872.77\text{ Hz}$** (Biên độ: $-34.19\text{ dB}$)
+5. **$f_5 = 1173.56\text{ Hz}$** (Biên độ: $-35.42\text{ dB}$)
 
 ![Phổ FFT và so sánh NFFT](figures/fft.png)
 
-**Nhận xét kỹ thuật Khối C:**
-1. **Đặc trưng phổ đa nguồn**: Phổ biên độ xuất hiện rõ các đỉnh nhọn sắc nét tương ứng với các nốt nhạc và hài âm phong phú của dàn dây, tập trung mạnh nhất trong dải $300\text{ Hz} - 2500\text{ Hz}$, đúng với tính chất của bản nhạc giao hưởng Brahms.
-2. **Ảnh hưởng của bước tần số $\Delta f$**: Với $NFFT = 2048$, bước tần số là $21.53\text{ Hz}$, các bin phổ cách nhau khá xa khiến đỉnh phổ có dạng răng cưa gãy khúc và đỉnh cực đại dễ bị lệch bin. Ngược lại, $NFFT = 65536$ thu hẹp bước bin xuống chỉ còn $0.67\text{ Hz}$, giúp vẽ đường cong phổ trơn tru và xác định tần số chính xác từng phần mười Hz.
-3. **Phân biệt Bin Spacing và True Physical Resolution**: Việc tăng $NFFT$ (hoặc Zero-padding) thực chất là phép nội suy hàm sinc trong miền tần số để vẽ đường cong dày hơn, **không làm tăng lượng thông tin hay độ phân giải vật lý thực tế**. Độ phân giải vật lý phân tách hai tần số độc lập hoàn toàn do độ dài khung thời gian $T_w$ quyết định ($\Delta f_{true} \approx 1/T_w = 1/0.8\text{s} = 1.25\text{ Hz}$).
+#### 2. Thí nghiệm Cửa sổ thời gian: Rectangular vs. Hamming
+Cắt cùng một khung tín hiệu dài $25\text{ ms}$ ($N = 1,102\text{ mẫu}$) của đoạn nguyên âm hữu thanh, giữ nguyên tín hiệu và chỉ thay đổi hàm cửa sổ:
+- **Cửa sổ Chữ nhật (Rectangular)**: Cắt cụt tín hiệu đột ngột ở hai biên, sinh ra sự gián đoạn bước nhảy lớn. Trong miền tần số, phổ biến đổi của cửa sổ chữ nhật là hàm $\text{sinc}(\omega)$, có búp phụ đầu tiên chỉ suy giảm **$-13.3\text{ dB}$**. Năng lượng rò rỉ lan tỏa khắp dải tần, làm sàn nhiễu bị đẩy lên cao, che lấp các bồi âm yếu lân cận.
+- **Cửa sổ Hamming**: $w[n] = 0.54 - 0.46\cos\left(\frac{2\pi n}{N-1}\right)$. Hàm cửa sổ giảm dần biên độ về gần 0 ở hai mép ($w[0] = w[N-1] = 0.08$), làm triệt tiêu sự gián đoạn biên. Kết quả là búp phụ đầu tiên bị nén sâu xuống **$-42.7\text{ dB}$** (tốt hơn gần $30\text{ dB}$ so với Rectangular). Nhờ đó, nền phổ cực kỳ sạch, các đỉnh hài âm nổi lên rõ ràng.
+- *Cái giá phải trả (Trade-off)*: Búp chính của Hamming rộng gấp đôi chữ nhật ($\frac{8\pi}{N}$ so với $\frac{4\pi}{N}$), làm đỉnh phổ bị tù rộng ra, làm giảm nhẹ khả năng phân tách hai tần số nằm cực kỳ sát nhau.
+
+![So sánh cửa sổ Rectangular và Hamming](figures/window_comparison.png)
 
 ---
 
-### Khối D: STFT và Spectrogram (Time–Frequency Resolution)
-Khảo sát biến đổi Fourier ngắn hạn (STFT) trên phân đoạn $35.0\text{s} - 45.0\text{s}$ ($10\text{ s}$) của tệp âm nhạc, sử dụng cửa sổ Hamming, cố định bước nhảy $Hop = 10\text{ ms}$ ($441$ mẫu), $NFFT = 4096$, thang màu chuẩn hóa đồng nhất trên dynamic range $[-80\text{ dB}, 0\text{ dB}]$ để so sánh 3 độ dài khung (*Frame length*): $10\text{ ms}$, $25\text{ ms}$ và $50\text{ ms}$.
+### 4.3. Khối D: Biểu diễn Thời gian – Tần số (STFT & Spectrogram)
 
-*Bảng so sánh đặc tính độ phân giải thời gian – tần số:*
+Âm thanh và tiếng nói là tín hiệu biến đổi theo thời gian (*non-stationary*). Phép biến đổi Fourier toàn cục (FFT) cho biết âm thanh có những tần số nào nhưng làm mất hoàn toàn thông tin tần số đó xuất hiện vào thời điểm nào. Để khắc phục, biến đổi Fourier thời gian ngắn (STFT) chia tín hiệu thành các khung nhỏ chồng lấn nhau (*overlapping frames*):
 
-| Độ dài khung ($T_{frame}$) | Số mẫu khung ($N_{frame}$) | Độ phân giải tần số cửa sổ ($\Delta f_{win}$) | Độ phân giải thời gian ($\Delta t$) | Đặc trưng biểu diễn quan sát được |
-| :---: | :---: | :---: | :---: | :--- |
-| **$10\text{ ms}$ (Ngắn)** | $441\text{ mẫu}$ | $\approx 100.0\text{ Hz}$ | Rất tốt ($10\text{ ms}$) | Độ phân giải thời gian cao, bắt kịp biến đổi nhanh (*transient*), nhưng các đường sọc hài âm bị nhòe theo chiều đứng. |
-| **$25\text{ ms}$ (Chuẩn)** | $1,102\text{ mẫu}$ | $\approx 40.0\text{ Hz}$ | Cân bằng ($25\text{ ms}$) | Cân bằng tối ưu giữa việc nhận diện cao độ nốt nhạc và sự thay đổi theo thời gian (cấu hình tiêu chuẩn xử lý âm thanh). |
-| **$50\text{ ms}$ (Dài)** | $2,205\text{ mẫu}$ | $\approx 20.0\text{ Hz}$ | Thấp ($50\text{ ms}$) | Độ phân giải tần số cực kỳ sắc nét, thấy rõ từng vạch sọc ngang hài âm, nhưng các sự kiện gõ nhịp nhanh bị nhòe mờ. |
+$$X(m, \omega) = \sum_{n=-\infty}^{\infty} x[n] w[n - mR] e^{-j\omega n}$$
 
-![Spectrogram đa độ phân giải](figures/spectrogram.png)
+Thực hiện thí nghiệm có kiểm soát với bước dịch cố định $Hop = 10\text{ ms}$ ($R = 441\text{ mẫu}$), $NFFT = 4096$, ngưỡng hiển thị động cố định $[-80, 0]\text{ dBFS}$, khảo sát 3 độ dài khung:
+1. **Khung ngắn $10\text{ ms}$ ($N_{frame} = 441\text{ mẫu}$ - Wideband Spectrogram)**:
+   * *Độ phân giải thời gian*: Cực kỳ cao. Quan sát rõ từng nhịp mở đóng thanh môn (các vạch sọc đứng *glottal pulses*) và các biến cố âm thanh tức thời (âm bật nổ /p/, /t/, tiếng gõ trống).
+   * *Độ phân giải tần số*: Thấp, các dải phổ bị nhòe rộng theo chiều dọc, không thể phân biệt được các vạch hài âm nằm gần nhau.
+2. **Khung dài $50\text{ ms}$ ($N_{frame} = 2205\text{ mẫu}$ - Narrowband Spectrogram)**:
+   * *Độ phân giải tần số*: Cực kỳ sắc nét. Từng sọc hài âm ngang song song ($f_0, 2f_0, 3f_0...$) tách bạch rõ rệt.
+   * *Độ phân giải thời gian*: Kém, các biến cố thời gian bị nhòe mờ theo chiều ngang do độ dài khung quá lớn làm trung bình hóa các biến đổi nhanh.
+3. **Khung chuẩn $25\text{ ms}$ ($N_{frame} = 1102\text{ mẫu}$)**:
+   * *Cân bằng hoàn hảo*: Đạt điểm dung hòa tối ưu giữa độ phân giải thời gian và tần số. Vừa theo dõi được đường bao formant của các nguyên âm, vừa quan sát được diễn tiến âm tiết. Đây chính là chuẩn kích thước khung cửa sổ mặc định trong hầu hết các hệ thống nhận dạng giọng nói (ASR) và trích xuất đặc trưng MFCC hiện đại.
 
-**Nhận xét kỹ thuật Khối D:**
-1. **Nguyên lý bất định thời gian – tần số (Gabor–Heisenberg)**: Đồ thị minh chứng rõ nét sự đánh đổi: không thể đồng thời đạt được độ phân giải thời gian tùy ý cao và độ phân giải tần số tùy ý cao trên cùng một phép biến đổi STFT cố định. Khi kéo dài khung từ $10\text{ ms}$ lên $50\text{ ms}$, các vạch sọc ngang (harmonic lines) chuyển từ mờ nhạt sang cực kỳ mảnh và rõ nét.
-2. **Vùng năng lượng ổn định vs Vùng biến đổi nhanh (Transient)**:
-   - Các vùng ngân nốt của dàn dây thể hiện bằng các dải màu sáng nằm ngang kéo dài liên tục, năng lượng tập trung mạnh nhất ở dải tần $200\text{ Hz} - 3500\text{ Hz}$.
-   - Các thời điểm chuyển phách, kéo vĩ mạnh tạo thành các vệt sáng thẳng đứng xuyên suốt các dải tần số (*transient events*), được hiển thị rõ nét và chính xác nhất ở khung $10\text{ ms}$.
-
----
-
-### Khối E: Thí nghiệm cửa sổ (Windowing & Spectral Leakage)
-Thực hiện trên cùng một khung tín hiệu $25\text{ ms}$ ($1,102$ mẫu), áp dụng $NFFT = 16,384$ để so sánh đối chứng giữa cửa sổ **Chữ nhật (Rectangular)** và cửa sổ **Hamming**.
-
-*Bảng so sánh đặc tính lý thuyết và thực nghiệm giữa hai loại cửa sổ:*
-
-| Thuộc tính kỹ thuật | Cửa sổ Chữ nhật (Rectangular) | Cửa sổ Hamming | Đánh giá kỹ thuật |
-| :--- | :---: | :---: | :--- |
-| **Hàm cửa sổ $w[n]$** | $w[n] = 1$ | $0.54 - 0.46\cos\left(\frac{2\pi n}{L-1}\right)$ | Hamming giảm dần biên độ về 0 ở hai mép |
-| **Độ rộng búp sóng chính (Main-lobe)** | $4\pi / L$ (Hẹp) | $8\pi / L$ (Rộng gấp đôi) | Rectangular cho phép phân tách 2 đỉnh gần nhau tốt hơn |
-| **Mức suy hao búp sóng phụ (Side-lobe)** | **$-13.3\text{ dB}$** (Rất kém) | **$-42.7\text{ dB}$** (Rất tốt) | Hamming triệt tiêu búp phụ tốt hơn **$29.4\text{ dB}$** |
-| **Tốc độ suy giảm búp phụ** | $-6\text{ dB/octave}$ | $-6\text{ dB/octave}$ | Hamming giữ mức suy hao cao ổn định |
-| **Rò rỉ phổ thực tế (Spectral Leakage)** | Rất nghiêm trọng (sàn nhiễu $\approx -45\text{ dB}$) | Cực kỳ thấp (sàn nhiễu $\approx -75\text{ dB}$) | Hamming giúp nền phổ sạch, lộ rõ hài âm nhỏ |
-
-![So sánh cửa sổ Rectangular vs Hamming](figures/window_comparison.png)
-
-**Nhận xét kỹ thuật Khối E:**
-1. **Cơ chế rò rỉ phổ (Spectral Leakage)**: Do tín hiệu âm thanh thực tế không tuần hoàn hoàn hảo trong khung $25\text{ ms}$, việc cắt đột ngột bằng cửa sổ Rectangular tạo ra sự gián đoạn biên (bước nhảy biên độ lớn ở hai đầu khung). Khi biến đổi sang miền tần số, bước nhảy này đóng vai trò như tích chập với hàm $\text{sinc}$, khiến năng lượng của các đỉnh mạnh lan tỏa sang toàn bộ dải tần lân cận.
-2. **Hiệu quả của cửa sổ Hamming**: Hàm cosine trong cửa sổ Hamming kéo êm hai đầu mút về sát giá trị $0.08$, triệt tiêu sự gián đoạn biên. Kết quả trên đồ thị phổ thực tế: sàn nhiễu phổ của Hamming tụt sâu xuống mức $-75\text{ dB}$ (sạch hơn gần $30\text{ dB}$ so với Rectangular), làm lộ rõ các hốc thung lũng giữa các đỉnh hài âm, ngăn chặn hoàn toàn hiện tượng đỉnh mạnh che lấp đỉnh yếu.
+![Spectrogram với 3 độ dài khung thời gian](figures/spectrogram.png)
 
 ---
 
-### Khối F: Lọc số FIR
-Thực hiện thiết kế bộ lọc số FIR pha tuyến tính (Linear Phase) sử dụng phương pháp cửa sổ (Window Method) với các thông số:
-- **Tần số lấy mẫu**: $F_s = 44,100\text{ Hz}$
-- **Số hệ số (Taps)**: $L = 201$ (bậc $M = L - 1 = 200$)
-- **Hàm cửa sổ**: Cửa sổ Hamming
-- **Tần số cắt ($f_c$)**: $2,000\text{ Hz}$
-- **Thiết kế 02 bộ lọc**:
-  1. **Bộ lọc thông thấp (FIR Low-pass)**: Cho qua các dải tần dưới $2\text{ kHz}$, làm suy hao dải cao.
-  2. **Bộ lọc thông cao (FIR High-pass)**: Cho qua các dải tần trên $2\text{ kHz}$, triệt tiêu dải trầm.
+### 4.4. Khối F: Thiết kế và Ứng dụng Bộ lọc số FIR Pha tuyến tính
 
-*Bảng thông số kỹ thuật bộ lọc FIR thiết kế:*
+#### 1. Thiết kế bộ lọc số FIR bằng phương pháp cửa sổ
+Thiết kế hai bộ lọc số FIR có tần số cắt $F_c = 2,000\text{ Hz}$, tần số lấy mẫu $F_s = 44,100\text{ Hz}$, sử dụng cửa sổ Hamming với số lượng điểm lấy mẫu $L = 201\text{ taps}$ (bậc bộ lọc $M = L - 1 = 200$):
+- **Bộ lọc thông thấp (FIR Low-pass Filter - LPF)**: Cho qua dải tần $[0, 2\text{ kHz}]$, triệt tiêu dải cao $> 2\text{ kHz}$.
+- **Bộ lọc thông cao (FIR High-pass Filter - HPF)**: Cho qua dải tần $[2\text{ kHz}, 22.05\text{ kHz}]$, triệt tiêu dải trầm $< 2\text{ kHz}$.
 
-| Thông số kỹ thuật | FIR Low-pass Filter | FIR High-pass Filter | Ý nghĩa kỹ thuật |
-| :--- | :---: | :---: | :--- |
-| **Số hệ số Taps ($L$)** | $201$ | $201$ | Chiều dài đáp ứng xung hữu hạn $h[n]$ |
-| **Bậc bộ lọc ($M$)** | $200$ | $200$ | $M = L - 1$ |
-| **Tần số cắt ($f_c$)** | $2,000\text{ Hz}$ | $2,000\text{ Hz}$ | Điểm suy giảm $-6\text{ dB}$ biên độ |
-| **Cửa sổ thiết kế** | Hamming | Hamming | Giảm gợn sóng Gibbs, suy hao dải chặn tốt |
-| **Độ suy hao dải chặn ($A_s$)** | $\approx -53.0\text{ dB}$ | $\approx -53.0\text{ dB}$ | Triệt tiêu năng lượng dải không mong muốn |
-| **Độ trễ nhóm (Group Delay)** | **$100\text{ mẫu}$ ($2.2676\text{ ms}$)** | **$100\text{ mẫu}$ ($2.2676\text{ ms}$)** | Hằng số không đổi trên toàn dải tần số |
-| **Đặc tính pha** | **Pha tuyến tính tuyệt đối** | **Pha tuyến tính tuyệt đối** | Bảo toàn hình dạng sóng, không gây méo trễ pha |
-
-*Bảng danh mục các tệp âm thanh xuất ra sau khi lọc (`audio/`):*
-
-| Tên tệp xuất ra | Kiểu lọc | Tần số cắt ($f_c$) | Cảm nhận âm học khi nghe kiểm tra |
-| :--- | :---: | :---: | :--- |
-| **`audio/filtered_speech_lpf.wav`** | Low-pass | $2\text{ kHz}$ | Âm thanh tối, ấm và đục (*muffled*), các phụ âm cọ xát vô thanh dải cao (`/s/`, `/sh/`, `/f/`) bị triệt tiêu, chỉ còn lại âm vang cổ họng. |
-| **`audio/filtered_music_lpf.wav`** | Low-pass | $2\text{ kHz}$ | Âm nhạc mất đi độ sáng sắc nét (*brightness/air*) của dàn dây, tiếng vĩ miết mờ nhạt, âm sắc trở nên trầm ấm và tù mù. |
-| **`audio/filtered_music_hpf.wav`** | High-pass | $2\text{ kHz}$ | Mất sạch toàn bộ âm bass, âm vang thân đàn cello/contrabass và tần số cơ bản nốt nhạc; âm thanh mỏng dính, the thé, chói và rỗng (*thin/tinny*). |
+#### 2. Đặc tính kỹ thuật & Độ trễ nhóm
+- **Tính đối xứng và Pha tuyến tính**: Đáp ứng xung thỏa mãn tính đối xứng gương $h[n] = h[M - n]$ (bộ lọc loại 1 - Type 1 FIR), đảm bảo pha của bộ lọc hoàn toàn tuyến tính trên toàn dải tần. Mọi thành phần tần số đều bị dịch một khoảng thời gian bằng nhau, **hoàn toàn không bị méo pha (phase distortion)**.
+- **Độ trễ nhóm (Group Delay)**:
+  $$\tau_g = \frac{L - 1}{2} = \frac{201 - 1}{2} = 100\text{ mẫu} \implies \tau = \frac{100}{44,100} \times 1000 \approx \mathbf{2.2676\text{ ms}}$$
+  Độ trễ $2.27\text{ ms}$ là hằng số tuyệt đối trên toàn dải tần, hoàn toàn vô hại trong các ứng dụng âm thanh thời gian thực (tai người chỉ nhận biết độ trễ khi $> 5 - 10\text{ ms}$).
+- **Độ suy giảm dải chặn (Stopband Attenuation)**: Đạt mức suy giảm $> 50\text{ dB}$, triệt tiêu dải tần không mong muốn cực kỳ triệt để.
 
 ![Đáp ứng tần số bộ lọc FIR LPF và HPF](figures/filter_response.png)
 
-![So sánh phổ trước và sau khi lọc](figures/filter_effect.png)
+#### 3. Thực nghiệm lọc âm thanh và Cảm nhận thính giác
+- **Tiếng nói qua LPF (`audio/filtered_speech_lpf.wav`)**: Mất đi các phụ âm xát cao tần, âm thanh nghe trầm ấm, đục và nghẹt (*muffled*) tương tự như khi người nói đứng sau một bức tường dày.
+- **Âm nhạc qua LPF (`audio/filtered_music_lpf.wav`)**: Toàn bộ tiếng leng keng của bộ gõ, tiếng réo rắt của violin và sáo biến mất; chỉ còn lại tiếng trầm ấm của trống bass và đàn contrabass.
+- **Âm nhạc qua HPF (`audio/filtered_music_hpf.wav`)**: Mất toàn bộ nền âm trầm, âm thanh nghe sắc lạnh, mỏng manh (*thin/tinny*), chỉ còn lại tiếng kim loại của chũm chọe và tiếng gió của nhạc cụ hơi.
 
-**Nhận xét kỹ thuật Khối F:**
-1. **Tính chất Pha tuyến tính (Linear Phase) & Độ trễ nhóm (Group Delay)**:
-   - Do các hệ số đối xứng hoàn hảo $h[n] = h[M - n]$, bộ lọc thuộc hệ FIR Type 1, đảm bảo độ trễ pha và độ trễ nhóm không phụ thuộc vào tần số:
-     $$\tau_g = \frac{L - 1}{2} = \frac{201 - 1}{2} = 100\text{ mẫu} \approx 2.2676\text{ ms}$$
-   - Mọi thành phần hài âm khi truyền qua bộ lọc đều bị làm trễ đúng $2.2676\text{ ms}$, hoàn toàn loại bỏ hiện tượng méo trễ pha (*phase distortion*). Độ trễ này rất nhỏ ($< 5\text{ ms}$), hoàn toàn nằm trong ngưỡng cho phép đối với các ứng dụng xử lý âm thanh thời gian thực (Real-time DSP / Live monitoring).
-2. **Hiệu năng chọn lọc tần số trên đồ thị phổ**:
-   - Tại tần số cắt $f_c = 2000\text{ Hz}$, đáp ứng biên độ $|H(f)|$ đi qua đúng điểm $-6.0\text{ dB}$.
-   - Dải chặn đạt mức suy hao sâu trên **$-53\text{ dB}$**, triệt tiêu gần như triệt để các sóng hài vượt ngưỡng. So sánh trên đồ thị phổ thực tế (`figures/filter_effect.png`), các đỉnh phổ nằm trong dải chặn bị kéo tụt xuống mức $-60\text{ dB}$ đến $-75\text{ dB}$, minh chứng bộ lọc hoạt động cực kỳ chính xác.
-3. **Mối liên hệ giữa Toán học và Cảm nhận thính giác**:
-   - Khi tai người nghe thấy âm thanh bị “nghẹt/đục” (với LPF), đó là biểu hiện trực tiếp của việc cắt bỏ dải tần cao trên $2\text{ kHz}$ – nơi cung cấp thông tin về độ nét và phụ âm.
-   - Khi nghe thấy âm thanh “the thé/mỏng” (với HPF), đó là hệ quả của việc loại bỏ dải tần số cơ bản dưới $2\text{ kHz}$ – nơi tập trung hơn $80\%$ tổng năng lượng của âm thanh.*
+![Dạng sóng và phổ so sánh trước sau lọc](figures/filter_effect.png)
 
-### Khối G: Lượng tử hóa, Resampling và Nén dữ liệu
+---
 
-#### 1. Thực nghiệm Lượng tử hóa đều (Uniform Quantization) và Đo đạc SNR
-Áp dụng bộ lượng tử hóa đều đối xứng trên các mức bit depth $B \in [4, 6, 8, 12, 16]\text{ bit/mẫu}$. Tỷ số tín hiệu trên nhiễu lượng tử (SNR) thực nghiệm được tính theo công thức:
-$$SNR = 10 \log_{10}\left(\frac{\sum_{n} x^2[n]}{\sum_{n} (x[n] - \hat{x}[n])^2}\right) \quad (\text{dB})$$
-Đối chiếu với công thức lý thuyết Rabiner–Schafer:
+### 4.5. Khối G: Lượng tử hóa, Lấy mẫu lại và Mã hóa nén
+
+#### 1. Thực nghiệm Lượng tử hóa đều (Uniform Quantization) và Kiểm chứng SNR
+Tiến hành lượng tử hóa đều đối xứng tín hiệu trên các mức độ sâu bit $B \in [4, 6, 8, 12, 16]\text{ bit/mẫu}$. Tỷ số tín hiệu trên nhiễu lượng tử (SNR) đo đạc thực nghiệm được so sánh với công thức lý thuyết Rabiner–Schafer:
+
 $$SNR_Q(\text{dB}) = 6.02B + 4.77 - 20\log_{10}\left(\frac{X_{\max}}{\sigma_x}\right)$$
+
 với $X_{\max} = 1.0$ và $\sigma_x = \text{RMS}$ của tín hiệu đầu vào ($\sigma_{x, speech} = 0.11209$, $\sigma_{x, music} = 0.07247$).
 
-*Bảng số liệu SNR thực nghiệm đo đạc so với lý thuyết:*
+*Bảng đối chiếu kết quả đo đạc SNR thực nghiệm và lý thuyết:*
 
-| Độ phân giải ($B$) | Số mức ($L = 2^B$) | SNR Tiếng nói Đo (dB) | SNR Tiếng nói LT (dB) | SNR Âm nhạc Đo (dB) | SNR Âm nhạc LT (dB) | Cảm nhận chất lượng thính giác |
+| Độ sâu bit ($B$) | Số mức ($2^B$) | SNR Speech Thực nghiệm | SNR Speech Lý thuyết | SNR Music Thực nghiệm | SNR Music Lý thuyết | Đánh giá cảm nhận chất lượng âm thanh |
 | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
-| **$4\text{ bit}$** | $16$ | **$10.32\text{ dB}$** | $9.84\text{ dB}$ | **$6.17\text{ dB}$** | $6.05\text{ dB}$ | Nhiễu lượng tử rất nặng, tiếng xào xạc thô ráp (hiss) bao trùm tín hiệu |
-| **$6\text{ bit}$** | $64$ | **$22.35\text{ dB}$** | $21.88\text{ dB}$ | **$18.29\text{ dB}$** | $18.09\text{ dB}$ | Nghe rõ lời thoại nhưng tiếng rè xì lượng tử vẫn còn khá lộ |
-| **$8\text{ bit}$** | $256$ | **$33.98\text{ dB}$** | $33.92\text{ dB}$ | **$30.35\text{ dB}$** | $30.13\text{ dB}$ | Âm thanh khá tốt, tương đương máy chơi game/thoại cũ, nhiễu nhẹ ở đoạn yên tĩnh |
-| **$12\text{ bit}$** | $4,096$ | **$57.99\text{ dB}$** | $58.00\text{ dB}$ | **$54.43\text{ dB}$** | $54.21\text{ dB}$ | Âm thanh trong trẻo, rất khó nhận biết nhiễu ở mức nghe thông thường |
-| **$16\text{ bit}$** | $65,536$ | **$90.52\text{ dB}$** | $82.08\text{ dB}$ | **$90.33\text{ dB}$** | $78.29\text{ dB}$ | Chuẩn CD Audio chất lượng cao, sàn nhiễu tiệm cận ngưỡng nghe |
+| **$4\text{ bit}$** | $16$ | **$10.32\text{ dB}$** | $9.84\text{ dB}$ | **$6.17\text{ dB}$** | $6.05\text{ dB}$ | Rè xì rất thô ráp, nhiễu bám dính theo lời nói |
+| **$6\text{ bit}$** | $64$ | **$22.35\text{ dB}$** | $21.88\text{ dB}$ | **$18.29\text{ dB}$** | $18.09\text{ dB}$ | Nghe rõ nội dung nhưng tiếng xào xạc lượng tử còn lộ |
+| **$8\text{ bit}$** | $256$ | **$33.98\text{ dB}$** | $33.92\text{ dB}$ | **$30.35\text{ dB}$** | $30.13\text{ dB}$ | Chất lượng khá ổn, tương đương máy chơi game cổ (GameBoy) |
+| **$12\text{ bit}$** | $4,096$ | **$57.99\text{ dB}$** | $58.00\text{ dB}$ | **$54.43\text{ dB}$** | $54.21\text{ dB}$ | Âm thanh rất sạch, khó nhận biết nhiễu ở mức nghe thường |
+| **$16\text{ bit}$** | $65,536$ | **$90.52\text{ dB}$** | $82.08\text{ dB}$ | **$90.33\text{ dB}$** | $78.29\text{ dB}$ | Chuẩn Audio CD phòng thu, nhiễu dưới ngưỡng nghe |
 
-*Danh mục các file âm thanh lượng tử hóa xuất ra (`audio/`):*
-- `audio/quantized_speech_4bit.wav` (Chất lượng 4-bit)
-- `audio/quantized_speech_8bit.wav` (Chất lượng 8-bit)
-- `audio/quantized_speech_16bit.wav` (Chất lượng 16-bit gốc)
+*Nhận xét chuyên môn:*
+1. **Khẳng định quy tắc $6\text{ dB/bit}$**: Cứ mỗi khi tăng thêm 1 bit độ phân giải, bước lượng tử $\Delta = \frac{2X_{\max}}{2^B}$ giảm một nửa, công suất nhiễu $\sigma_e^2 \approx \frac{\Delta^2}{12}$ giảm 4 lần, làm SNR tăng xấp xỉ **$6.02\text{ dB}$**.
+2. **Ảnh hưởng của Headroom Loss**: Tín hiệu tiếng nói có RMS cao hơn âm nhạc ($0.11209$ so với $0.07247$, chênh lệch $+3.79\text{ dB}$), do đó thành phần tổn hao dự trữ biên độ $-20\log_{10}(X_{\max}/\sigma_x)$ của tiếng nói nhỏ hơn. Kết quả là trên cùng một số bit $B$, SNR thực nghiệm của tiếng nói luôn cao hơn âm nhạc khoảng **$3.5 - 4.1\text{ dB}$**.
 
-![Đồ thị SNR thực nghiệm vs lý thuyết](figures/quantization_snr.png)
+![Đồ thị SNR thực nghiệm vs lý thuyết và sai số lượng tử](figures/quantization_snr.png)
 
----
+#### 2. Thí nghiệm Lấy mẫu lại (Resampling)
+Chuyển đổi tần số lấy mẫu từ $F_s = 44,100\text{ Hz}$ về $16,000\text{ Hz}$ và $8,000\text{ Hz}$ bằng bộ lọc đa pha chống chồng phổ (`scipy.signal.resample_poly`):
+- **Chuẩn 16 kHz (`audio/resampled_speech_16k.wav`)**: Tần số Nyquist là $8\text{ kHz}$. Vì dải tần cơ bản và formant của tiếng nói người chủ yếu nằm dưới $8\text{ kHz}$, âm thanh sau khi chuyển đổi vẫn giữ được trọn vẹn sự tự nhiên, trong trẻo. Đây chính là chuẩn thoại băng rộng (HD Voice / VoLTE / VoIP) hiện nay.
+- **Chuẩn 8 kHz (`audio/resampled_speech_8k.wav`)**: Tần số Nyquist là $4\text{ kHz}$. Toàn bộ các phụ âm ma sát gió cao tần ($> 4\text{ kHz}$) bị cắt cụt hoàn toàn, giọng nói bị bóp nghẹt (*muffled*) như nghe qua điện thoại bàn analog (PSTN) hoặc mạng 2G cũ.
+- **Hiện tượng Chồng phổ (Aliasing)**: Hoàn toàn **không xuất hiện**, vì thuật toán `resample_poly` đã tự động áp dụng bộ lọc Kaiser thông thấp để triệt tiêu toàn bộ phổ vượt quá tần số Nyquist mới trước khi hạ mẫu.
 
-#### 2. Thực nghiệm Lấy mẫu lại (Resampling)
-Thực hiện lấy mẫu lại tín hiệu tiếng nói từ gốc $F_s = 44,100\text{ Hz}$ về $16,000\text{ Hz}$ và $8,000\text{ Hz}$ sử dụng bộ lọc đa pha chống aliasing chuẩn (`scipy.signal.resample_poly`).
+![Phổ so sánh khi lấy mẫu lại 16kHz và 8kHz](figures/resampling_comparison.png)
 
-*Bảng so sánh các mức tần số lấy mẫu và chất lượng âm thanh:*
-
-| Tần số lấy mẫu ($F_s$) | Tần số Nyquist ($F_s / 2$) | Chuẩn ứng dụng thực tế | Tệp âm thanh xuất ra | Đánh giá chất lượng nghe thực tế |
-| :---: | :---: | :--- | :--- | :--- |
-| **$44,100\text{ Hz}$** | $22,050\text{ Hz}$ | Chuẩn Studio / CD Audio | `audio/speech_input.wav` | Dải tần đầy đủ, giọng nói tự nhiên, phụ âm gió (`/s/`, `/f/`) sắc nét |
-| **$16,000\text{ Hz}$** | $8,000\text{ Hz}$ | Thoại băng rộng (HD Voice / VoIP) | `audio/resampled_speech_16k.wav` | Giữ trọn dải âm nói của người ($< 8\text{ kHz}$), giọng nói rất tự nhiên, dễ nghe |
-| **$8,000\text{ Hz}$** | $4,000\text{ Hz}$ | Thoại truyền thống (PSTN / 2G) | `audio/resampled_speech_8k.wav` | Bị cắt cụt trên $4\text{ kHz}$, âm thanh nghẹt như nghe qua ống bơ điện thoại bàn |
-
-![Phổ so sánh khi lấy mẫu lại 16kHz & 8kHz](figures/resampling_comparison.png)
-
----
-
-#### 3. Tốc độ bit, Dung lượng và Tỷ số nén (PCM vs MP3)
-- **Tốc độ bit lý thuyết của PCM 16-bit stereo**:
+#### 3. Tốc độ bit, Dung lượng và Hiệu quả Nén (PCM vs MP3)
+- **Tốc độ bit lý thuyết của PCM 16-bit Stereo**:
   $$R_{PCM} = F_s \times B \times C = 44,100 \times 16 \times 2 = 1,411,200\text{ bit/s} = 1,411.2\text{ kbps}$$
-- **Tỷ số nén (Compression Ratio - CR)** và **Mức tiết kiệm dung lượng (Saving %)**:
-  $$CR = \frac{\text{Size}_{WAV}}{\text{Size}_{MP3}}, \quad \text{Saving}(\%) = \left(1 - \frac{\text{Size}_{MP3}}{\text{Size}_{WAV}}\right) \times 100\%$$
+- **So sánh thực tế giữa tệp WAV gốc và MP3 nén**:
 
-*Bảng so sánh tốc độ bit và mức độ nén dữ liệu thực tế:*
+| Tệp âm thanh khảo sát | Thời lượng | Dung lượng WAV gốc | Dung lượng MP3 | Bitrate MP3 | Tỷ số nén (CR) | Phần trăm tiết kiệm (%) |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Tiếng nói (`speech_input`)** | $14.84\text{ s}$ | $2.497\text{ MB}$ | $0.228\text{ MB}$ | $128\text{ kbps}$ | **$10.97 : 1$** | **$90.88\%$** |
+| **Âm nhạc (`music_input`)** | $45.84\text{ s}$ | $7.712\text{ MB}$ | $1.401\text{ MB}$ | $256\text{ kbps}$ | **$5.51 : 1$** | **$81.84\%$** |
 
-| Tệp thực nghiệm | Thời lượng | Bitrate PCM | Bitrate MP3 | Dung lượng WAV | Dung lượng MP3 | Tỷ số nén (CR) | Mức tiết kiệm (%) |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Tiếng nói (Speech)** | $14.84\text{ s}$ | $1,411.2\text{ kbps}$ | $128.0\text{ kbps}$ | $2.497\text{ MB}$ | $0.228\text{ MB}$ | **$10.97 : 1$** | **$90.88\%$** |
-| **Âm nhạc (Music)** | $45.84\text{ s}$ | $1,411.2\text{ kbps}$ | $256.0\text{ kbps}$ | $7.712\text{ MB}$ | $1.401\text{ MB}$ | **$5.51 : 1$** | **$81.84\%$** |
-
----
-
-**Nhận xét kỹ thuật Khối G:**
-1. **Khẳng định quy tắc $6\text{ dB/bit}$ và vai trò của Headroom**:
-   - Đồ thị SNR thực nghiệm tăng gần như tuyến tính tuyệt đối theo số bit: mỗi khi tăng thêm 1 bit độ phân giải, SNR tăng xấp xỉ **$6.02\text{ dB}$** (tương đương năng lượng nhiễu lượng tử giảm đi 4 lần).
-   - Tín hiệu tiếng nói có năng lượng hiệu dụng $RMS = 0.11209$ ($-19.01\text{ dBFS}$), cao hơn tín hiệu âm nhạc có $RMS = 0.07247$ ($-22.80\text{ dBFS}$). Do thành phần suy hao do dải dự trữ biên độ (*headroom loss*) $-20\log_{10}(X_{\max}/\sigma_x)$ của tiếng nói nhỏ hơn $3.79\text{ dB}$, SNR đo được của tiếng nói luôn cao hơn âm nhạc khoảng $3.5 - 4\text{ dB}$ trên cùng số bit.
-2. **Cảm nhận thính giác về nhiễu lượng tử**:
-   - Ở $4\text{ bit}$, nhiễu lượng tử có biên độ tương đối lớn và tương quan chặt chẽ với tín hiệu, tạo ra tiếng xào xạc thô ráp (rough distortion) bám theo giọng nói.
-   - Khi tăng lên $8\text{ bit}$ rồi $16\text{ bit}$, bước lượng tử $\Delta = 2X_{\max}/2^B$ thu nhỏ lũy thừa, nhiễu lượng tử chuyển dần sang phân bố đều độc lập như tạp âm trắng biên độ siêu nhỏ, hoàn toàn chìm dưới ngưỡng nghe của tai người ở $16\text{ bit}$.
-3. **Ý nghĩa thực tế của việc Resampling**:
-   - Việc chuyển đổi sampling rate bắt buộc phải đi kèm bộ lọc chống chồng phổ (anti-aliasing low-pass filter) cắt bỏ các tần số vượt quá tần số Nyquist mới.
-   - Đồ thị phổ chứng minh các tần số trên $8\text{ kHz}$ (ở bản 16 kHz) và trên $4\text{ kHz}$ (ở bản 8 kHz) bị triệt tiêu hoàn toàn. Chuẩn 16 kHz bảo toàn được hầu hết dải tần cơ bản và formant của tiếng nói người, trong khi chuẩn 8 kHz làm mất đi các phụ âm tần số cao, chứng minh tại sao liên lạc qua mạng 4G/VoLTE (HD Voice 16 kHz) lại trong và rõ hơn hẳn mạng 2G truyền thống (8 kHz).
-4. **Hiệu năng của mã hóa cảm thụ (Perceptual Coding)**:
-   - File MP3 128 kbps giảm được tới **$90.88\%$** dung lượng bộ nhớ so với WAV PCM không nén. Điều này đạt được là nhờ thuật toán MPEG/MP3 đã khai thác hiện tượng che khuất thính giác (*psychoacoustic masking*): lượng tử hóa thô hơn ở các dải tần mà tai người bị che khuất bởi các âm thanh mạnh lân cận, giúp tiết kiệm bit rate tối đa mà người nghe thông thường không nhận ra sự suy giảm chất lượng.
+*Nhận xét*: Bộ nén MP3 128 kbps giúp tiết kiệm tới **$90.88\%$** dung lượng lưu trữ. Mặc dù là nén mất dữ liệu (*lossy*), MP3 vẫn duy trì chất lượng nghe xuất sắc nhờ khai thác mô hình tâm lý thính giác (*psychoacoustic model*): chỉ lượng tử hóa thô ở các dải tần bị che khuất bởi âm thanh mạnh lân cận mà tai người không thể cảm nhận được.
 
 ---
 
-## 4. Trả lời đầy đủ các câu hỏi thí nghiệm và lý thuyết
+## 5. Bảng tổng hợp Trả lời các Câu hỏi Thí nghiệm Bắt buộc (Mục 5 Đề bài)
 
-### 4.1. Bảng đối chiếu & Trả lời trực diện 7 câu hỏi thí nghiệm độc lập (Mục 5 - Trang 9 Đề bài)
+Dưới đây là bảng đối chiếu và trả lời trực diện 7 câu hỏi thí nghiệm bắt buộc được quy định tại Mục 5 (Trang 9 của đề bài `Lab 1.pdf`):
 
-| Thí nghiệm | Thiết lập thực nghiệm | Câu hỏi yêu cầu trong đề bài | Kết quả và Trả lời chi tiết dựa trên số liệu thực tế |
+| Thí nghiệm | Thiết lập thực nghiệm | Câu hỏi yêu cầu trong đề bài | Kết quả và Lời giải thích dựa trên số liệu thực tế |
 | :--- | :--- | :--- | :--- |
-| **Sampling & Resampling** | Gốc ($44.1\text{ kHz}$), $16\text{ kHz}$, $8\text{ kHz}$ | *Alias có xuất hiện không? Khi nào chất lượng nghe giảm rõ?* | **Không xuất hiện alias** vì quá trình lấy mẫu lại dùng `scipy.signal.resample_poly` có tích hợp bộ lọc đa pha Kaiser chống chồng phổ, dập tắt toàn bộ phổ vượt quá tần số Nyquist mới ($8\text{ kHz}$ và $4\text{ kHz}$). Chất lượng nghe **giảm rõ rệt ở $8\text{ kHz}$** (chuẩn thoại 2G/PSTN cũ): âm thanh bị nghẹt (*muffled*), mất toàn bộ phụ âm ma sát gió cao tần như `/s/`, `/f/`, `/x/` (nằm trên $4\text{ kHz}$). Ở $16\text{ kHz}$ (chuẩn HD Voice), tai người vẫn nghe rất tự nhiên và rõ ràng vì dải formant của tiếng nói người chủ yếu nằm dưới $8\text{ kHz}$. |
-| **Quantization** | $4$, $8$, $16\text{ bit}$ | *SNR thay đổi thế nào? Quantization noise nghe ở vùng nào rõ hơn?* | SNR tăng tuyến tính **$\approx 6\text{ dB/bit}$** theo quy tắc Rabiner–Schafer (đo được: $4\text{b} \rightarrow 10.32\text{ dB}$, $8\text{b} \rightarrow 33.98\text{ dB}$, $16\text{b} \rightarrow 90.52\text{ dB}$). Nhiễu lượng tử nghe rõ nhất ở **vùng tín hiệu biên độ nhỏ (unvoiced, âm thì thầm, đuôi ngân tắt dần)** và **các khoảng lặng**. Ở vùng tín hiệu mạnh, âm thanh lấn át nhiễu (hiệu ứng che khuất); ở vùng tín hiệu nhỏ, công suất tín hiệu $P_{sig}$ giảm sụt trong khi công suất nhiễu $\sigma_e^2 \approx \Delta^2/12$ giữ nguyên, khiến SNR cục bộ giảm mạnh làm tiếng rè xào xạc lộ rõ nhất. |
-| **FFT** | $NFFT_1 = 2048$ và $NFFT_2 = 65536$ | *$\Delta f$ thay đổi ra sao? NFFT lớn có tăng true resolution không?* | Bước tần số $\Delta f$ giảm mạnh từ $21.53\text{ Hz}$ xuống $0.67\text{ Hz}$ (mật độ bin dày gấp 32 lần). $NFFT$ lớn **HOÀN TOÀN KHÔNG làm tăng độ phân giải vật lý thực tế** (*true physical resolution*). Nó chỉ là phép nội suy lượng giác (*sinc interpolation*) nhờ zero-padding giúp đường cong phổ mịn hơn để dò đỉnh chính xác. Độ phân giải vật lý bị chặn cứng bởi độ dài khung thời gian $T_w = 0.8\text{ s}$ ($\Delta f_{true} \approx 1/T_w = 1.25\text{ Hz}$). |
-| **Frame length** | $10\text{ ms}$, $25\text{ ms}$, $50\text{ ms}$ | *Trade-off time/frequency resolution quan sát được gì?* | **Khung ngắn ($10\text{ ms}$)**: Độ phân giải thời gian rất cao, thấy rõ từng xung đóng mở thanh môn (*pitch pulses*) và ranh giới biến đổi âm sắc nhanh, nhưng các vạch phổ tần số bị nhòe rộng. **Khung dài ($50\text{ ms}$)**: Phân giải tần số cực sắc nét, tách bạch từng sọc hài âm nằm ngang nhưng bị nhòe theo trục thời gian. **Khung $25\text{ ms}$**: Điểm dung hòa tối ưu giữa thời gian và tần số, là chuẩn vàng trong nhận dạng tiếng nói (ASR). |
-| **Windowing** | Rectangular vs Hamming | *Spectral leakage và main-lobe khác nhau thế nào?* | **Rectangular**: Búp chính hẹp ($4\pi/L$) nhưng búp phụ rất cao ($-13.3\text{ dB}$), rò rỉ phổ nghiêm trọng làm sàn nhiễu bị nâng cao che lấp hài nhỏ. **Hamming**: Làm suy giảm biên độ về 0 ở hai mép, triệt tiêu gián đoạn biên, nén búp phụ xuống sâu **$-42.7\text{ dB}$** (khử rò rỉ phổ xuất sắc), đổi lại búp chính rộng gấp đôi ($8\pi/L$) làm các đỉnh phổ bị tù rộng hơn. |
-| **Filtering** | LPF ($2\text{ kHz}$) + HPF ($2\text{ kHz}$) | *Phổ và cảm nhận nghe thay đổi đúng với H(f) không?* | **Hoàn toàn khớp đúng 100%**: Sau LPF, phổ trên $2\text{ kHz}$ bị triệt tiêu $> 45\text{ dB}$, âm thanh nghe trầm ấm, đục (*muffled*) vì mất dải cao. Sau HPF, phổ dưới $2\text{ kHz}$ bị loại bỏ, âm thanh nghe mỏng manh, sắc lạnh (*thin/tinny*), mất hoàn toàn năng lượng âm trầm (bass/trống). |
-| **Coding** | PCM vs MP3 ($128\text{ kbps}$, $256\text{ kbps}$) | *Bit rate, size, compression ratio và chất lượng nghe?* | PCM 16-bit stereo có bitrate $1,411.2\text{ kbps}$. MP3 128 kbps đạt tỷ số nén **$10.97 : 1$ (tiết kiệm $90.88\%$ dung lượng)**; MP3 256 kbps đạt **$5.51 : 1$ (tiết kiệm $81.84\%$)**. Dù nén mất dữ liệu (*lossy*) làm méo dạng sóng toán học (SNR đo được chỉ $\approx 30\text{ dB}$), chất lượng nghe thực tế của MP3 vẫn rất trong trẻo, tự nhiên nhờ mô hình tâm lý thính giác khéo léo giấu nhiễu vào vùng tai người không nghe thấy. |
+| **Sampling & Resampling** | Gốc ($44.1\text{ kHz}$), $16\text{ kHz}$, $8\text{ kHz}$ | *Alias có xuất hiện không? Khi nào chất lượng nghe giảm rõ?* | **Không xuất hiện alias** vì quá trình hạ mẫu dùng bộ lọc đa pha Kaiser chống chồng phổ, triệt tiêu toàn bộ tần số trên $F_s/2$ mới. Chất lượng nghe **giảm rõ rệt ở $8\text{ kHz}$** (chuẩn thoại 2G cũ) do mất toàn bộ phụ âm gió $> 4\text{ kHz}$. Ở $16\text{ kHz}$ (HD Voice), tai người vẫn nghe rất rõ và tự nhiên vì dải formant tiếng nói người nằm dưới $8\text{ kHz}$. |
+| **Quantization** | $4$, $8$, $16\text{ bit}$ | *SNR thay đổi thế nào? Quantization noise nghe ở vùng nào rõ hơn?* | SNR tăng tuyến tính **$\approx 6\text{ dB/bit}$** theo đúng quy tắc Rabiner–Schafer ($4\text{b}: 10.32\text{ dB} \rightarrow 8\text{b}: 33.98\text{ dB} \rightarrow 16\text{b}: 90.52\text{ dB}$). Nhiễu lượng tử nghe rõ nhất ở **vùng biên độ nhỏ (unvoiced, âm thì thầm, đuôi tắt dần)** và **khoảng lặng**. Ở vùng tín hiệu mạnh, âm thanh lấn át nhiễu; ở vùng tín hiệu nhỏ, công suất tín hiệu $P_{sig}$ giảm trong khi công suất nhiễu $\sigma_e^2 \approx \Delta^2/12$ giữ nguyên, làm SNR cục bộ suy giảm nghiêm trọng. |
+| **FFT** | $NFFT_1 = 2048$ và $NFFT_2 = 65536$ | *$\Delta f$ thay đổi ra sao? NFFT lớn có tăng true resolution không?* | Bước tần số $\Delta f$ giảm mạnh từ $21.53\text{ Hz}$ xuống $0.67\text{ Hz}$ (bin dày hơn 32 lần). $NFFT$ lớn **HOÀN TOÀN KHÔNG làm tăng true physical resolution**. Nó chỉ là phép nội suy lượng giác (*sinc interpolation*) nhờ chèn số 0 (zero-padding) giúp làm mịn đường cong phổ để dò đỉnh chính xác. Độ phân giải vật lý thực sự bị khóa chặt bởi độ dài khung thời gian: $\Delta f_{true} \approx 1/T_w = 1/0.8\text{s} = 1.25\text{ Hz}$. |
+| **Frame length** | $10\text{ ms}$, $25\text{ ms}$, $50\text{ ms}$ | *Trade-off time/frequency resolution quan sát được gì?* | **Khung ngắn ($10\text{ ms}$)**: Độ phân giải thời gian cao, thấy rõ từng xung thanh môn nhưng phổ tần số bị nhòe mờ. **Khung dài ($50\text{ ms}$)**: Phân giải tần số sắc nét, thấy rõ từng đường hài âm ngang nhưng bị nhòe theo trục thời gian. **Khung $25\text{ ms}$**: Điểm cân bằng tối ưu giữa thời gian và tần số, được chọn làm chuẩn trong xử lý tiếng nói. |
+| **Windowing** | Rectangular vs Hamming | *Spectral leakage và main-lobe khác nhau thế nào?* | **Rectangular**: Búp chính hẹp ($4\pi/L$) nhưng búp phụ rất cao ($-13.3\text{ dB}$), gây rò rỉ phổ nặng nề làm bẩn sàn phổ. **Hamming**: Làm mượt hai biên, nén búp phụ xuống sâu **$-42.7\text{ dB}$** (khử rò rỉ phổ xuất sắc), đổi lại búp chính rộng gấp đôi ($8\pi/L$) làm các đỉnh phổ bị tù rộng ra. |
+| **Filtering** | LPF ($2\text{ kHz}$) + HPF ($2\text{ kHz}$) | *Phổ và cảm nhận nghe thay đổi đúng với H(f) không?* | **Hoàn toàn khớp đúng 100%**: Sau LPF, phổ trên $2\text{ kHz}$ bị dập tắt $> 45\text{ dB}$, âm thanh nghe trầm đục (*muffled*) do mất dải cao. Sau HPF, phổ dưới $2\text{ kHz}$ bị triệt tiêu, âm thanh nghe mỏng và sắc (*thin/tinny*), mất hoàn toàn âm trầm. |
+| **Coding** | PCM vs MP3 ($128\text{ kbps}$, $256\text{ kbps}$) | *Bit rate, size, compression ratio và chất lượng nghe?* | PCM 16-bit stereo có bitrate $1,411.2\text{ kbps}$. MP3 128 kbps đạt tỷ số nén **$10.97 : 1$ (tiết kiệm $90.88\%$)**; MP3 256 kbps đạt **$5.51 : 1$ (tiết kiệm $81.84\%$)**. Dù nén mất dữ liệu (*lossy*) làm méo dạng sóng toán học (SNR chỉ $\approx 30\text{ dB}$), tai người nghe vẫn cảm thấy âm thanh trong trẻo, tự nhiên nhờ mô hình tâm lý thính giác. |
 
 ---
 
-### 4.2. Trả lời chi tiết 7 câu hỏi báo cáo lý thuyết chuyên sâu (Mục 6 - Trang 9-10 Đề bài)
+## 6. Trả lời chi tiết 7 Câu hỏi Báo cáo Lý thuyết Chuyên sâu (Mục 6 Đề bài)
 
 ### Câu 1: Giải thích bằng công thức tại sao $F_s = 44.1\text{ kHz}$ chỉ biểu diễn độc lập đến $22.05\text{ kHz}$?
 **Trả lời**:
 1. **Định lý lấy mẫu Nyquist–Shannon**:
-   - Khi lấy mẫu tín hiệu liên tục $x_a(t)$ với chu kỳ lấy mẫu $T = 1/F_s$, phổ của chuỗi rời rạc $X(e^{j\omega})$ là sự tuần hoàn lặp lại của phổ liên tục $X_a(f)$ với chu kỳ dịch chuyển bằng $F_s$:
-     $$X(e^{j2\pi f / F_s}) = \frac{1}{T} \sum_{k=-\infty}^{\infty} X_a(f - k F_s)$$
-   - Để các bản sao phổ không bị chồng đè lên nhau (hiện tượng chồng phổ – *Aliasing*), dải tần số của tín hiệu phải bị chặn trên bởi nửa tần số lấy mẫu:
-     $$F_{\max} \le \frac{F_s}{2} \implies F_{Nyquist} = \frac{F_s}{2} = \frac{44,100\text{ Hz}}{2} = 22,050\text{ Hz} = \mathbf{22.05\text{ kHz}}$$
+   Khi lấy mẫu tín hiệu tương tự liên tục $x_a(t)$ với chu kỳ lấy mẫu $T = 1/F_s$, phổ của chuỗi rời rạc $X(e^{j\omega})$ là sự tuần hoàn lặp lại của phổ liên tục $X_a(f)$ với chu kỳ dịch chuyển bằng $F_s$:
+   $$X\left(e^{j2\pi \frac{f}{F_s}}\right) = \frac{1}{T} \sum_{k=-\infty}^{\infty} X_a(f - k F_s)$$
+   Để các bản sao phổ dịch chuyển không bị đè lên nhau (chống hiện tượng chồng phổ – *Aliasing*), tần số thành phần cao nhất $F_{\max}$ trong tín hiệu phải thỏa mãn điều kiện Nyquist:
+   $$F_s \ge 2F_{\max} \iff F_{\max} \le \frac{F_s}{2}$$
+   Với tần số lấy mẫu tiêu chuẩn âm thanh $F_s = 44,100\text{ Hz}$, tần số Nyquist giới hạn là:
+   $$F_{\text{Nyquist}} = \frac{F_s}{2} = \frac{44,100}{2} = 22,050\text{ Hz} = \mathbf{22.05\text{ kHz}}$$
 2. **Tính chất đối xứng liên hợp Hermite của tín hiệu thực**:
-   - Tín hiệu âm thanh vật lý luôn là tín hiệu thực $x[n] \in \mathbb{R}$. Do đó, biến đổi Fourier có tính chất đối xứng Hermite:
-     $$X(e^{-j\omega}) = X^*(e^{j\omega}) \implies |X(e^{-j\omega})| = |X(e^{j\omega})|$$
-   - Phổ biên độ trên nửa vòng tròn âm $[-\pi, 0]$ hoàn toàn là ảnh gương của nửa vòng tròn dương $[0, \pi]$.
-   - Do đó, toàn bộ thông tin độc lập về biên độ và góc pha chỉ nằm trọn vẹn trong khoảng tần số dương $[0, F_s / 2] = [0, 22.05\text{ kHz}]$. Mọi thành phần vượt quá $22.05\text{ kHz}$ không mang thêm bất kỳ thông tin mới nào, và nếu không được lọc bỏ bằng bộ lọc khử chồng phổ (*anti-aliasing filter*), chúng sẽ bị phản xạ gập ngược vào dải tần nghe được làm méo âm nghiêm trọng.
+   Tín hiệu âm thanh trong thực tế luôn là tín hiệu thực $x[n] \in \mathbb{R}$. Do đó, biến đổi Fourier của nó luôn có tính chất đối xứng Hermite:
+   $$X(e^{-j\omega}) = X^*(e^{j\omega}) \implies |X(e^{-j\omega})| = |X(e^{j\omega})|$$
+   Phổ biên độ trên nửa trục âm $[-\pi, 0]$ (tương ứng $[-F_s/2, 0]$) hoàn toàn là ảnh gương đối xứng qua trục tung của nửa trục dương $[0, \pi]$ (tương ứng $[0, F_s/2]$). Toàn bộ thông tin độc lập về biên độ và pha chỉ tồn tại duy nhất trong khoảng tần số dương $[0, F_s / 2] = [0, 22.05\text{ kHz}]$. Mọi tần số vượt quá $22.05\text{ kHz}$ nếu không được lọc bỏ trước khi lấy mẫu sẽ bị phản xạ ngược vào dải tần nghe được, làm méo âm nghiêm trọng.
 
 ---
 
 ### Câu 2: Nếu NFFT tăng từ 2048 lên 8192 nhưng frame vẫn dài 25 ms, điều gì thật sự thay đổi và điều gì không?
 **Trả lời**:
-- **Điều THẬT SỰ THAY ĐỔI**:
-  1. **Bước tần số giữa các bin (Frequency-bin spacing $\Delta f$) giảm 4 lần**:
+* **Điều THẬT SỰ THAY ĐỔI**:
+  1. **Bước tần số giữa các bin ($\Delta f$) giảm 4 lần**:
      $$\Delta f_{2048} = \frac{44,100}{2,048} \approx 21.53\text{ Hz} \quad \longrightarrow \quad \Delta f_{8192} = \frac{44,100}{8,192} \approx 5.38\text{ Hz}$$
-  2. **Mật độ điểm hiển thị trên đồ thị**: Số điểm tính toán tăng gấp 4 lần, đường cong phổ biên độ trở nên dày đặc, mịn màng và liên tục hơn. Việc này hỗ trợ việc xác định tọa độ đỉnh cực đại (*peak picking*) chính xác hơn, tránh bị lỗi ước lượng do đỉnh thực nằm rơi vào giữa hai bin thưa.
-- **Điều HOÀN TOÀN KHÔNG THAY ĐỔI**:
-  1. **Lượng thông tin vật lý của tín hiệu**: Tín hiệu đầu vào chỉ có $N = 0.025 \times 44,100 = 1,102$ mẫu thực tế. Việc tăng $NFFT$ từ $2,048$ lên $8,192$ bản chất là chèn thêm $7,090$ số 0 vào đuôi tín hiệu (**Zero-padding**). Zero-padding hoàn toàn không tạo ra thêm bất kỳ thông tin nào mới.
-  2. **Độ phân giải tần số vật lý thực tế (True Physical Resolution)**: Khả năng phân tách hai sóng sin có tần số gần nhau bị chi phối duy nhất bởi độ dài cửa sổ thời gian hữu hạn $T_w = 25\text{ ms}$:
-     $$\Delta f_{true} \approx \frac{1}{T_w} = \frac{1}{0.025\text{ s}} = \mathbf{40\text{ Hz}}$$
-     Nếu trong tín hiệu có hai đỉnh sóng sin cách nhau nhỏ hơn $40\text{ Hz}$ (ví dụ $1000\text{ Hz}$ và $1020\text{ Hz}$), việc tăng $NFFT$ lên $8192$ hay $65536$ cũng chỉ hiển thị một búp phổ rộng duy nhất (nội suy của hàm sinc), hoàn toàn không thể phân tách thành hai đỉnh độc lập.
+  2. **Mật độ điểm hiển thị trên đồ thị**: Số điểm tính toán tăng gấp 4 lần, đường cong phổ biên độ trở nên dày đặc, mịn màng và liên tục hơn. Việc này hỗ trợ thuật toán dò đỉnh cực đại (*peak picking*) xác định tọa độ đỉnh chính xác hơn, tránh bị lỗi ước lượng do đỉnh thực rơi vào giữa hai bin thưa.
+* **Điều HOÀN TOÀN KHÔNG THAY ĐỔI**:
+  1. **Lượng thông tin vật lý của tín hiệu**: Tín hiệu đầu vào chỉ có $N = 0.025 \times 44,100 = 1,102$ mẫu thực tế. Việc tăng $NFFT$ từ $2,048$ lên $8,192$ bản chất là chèn thêm $7,090$ số 0 vào đuôi tín hiệu (**Zero-padding**). Zero-padding chỉ là phép **nội suy lượng giác** (sinc interpolation) trên đồ thị rời rạc, hoàn toàn không tạo ra thêm bất kỳ thông tin vật lý mới nào.
+  2. **Độ phân giải tần số vật lý thực tế (True Physical Resolution)**: Khả năng phân tách hai sóng sin có tần số gần nhau bị giới hạn bởi độ dài cửa sổ thời gian hữu hạn $T_w = 25\text{ ms}$:
+     $$\Delta f_{\text{true}} \approx \frac{1}{T_w} = \frac{1}{0.025\text{ s}} = \mathbf{40\text{ Hz}}$$
+     Nếu hai sóng sin cách nhau nhỏ hơn $40\text{ Hz}$ (ví dụ $1000\text{ Hz}$ và $1020\text{ Hz}$), việc tăng $NFFT$ lên $8192$ hay $65536$ cũng chỉ vẽ nên một búp phổ mở rộng duy nhất, không thể phân tách thành hai đỉnh độc lập.
 
 ---
 
 ### Câu 3: Tại sao Hamming giảm spectral leakage so với rectangular nhưng có thể làm các đỉnh gần nhau khó phân tách hơn?
 **Trả lời**:
-- Cắt một phân đoạn tín hiệu bằng cửa sổ thời gian $w[n]$ tương đương với phép nhân trong miền thời gian, tức là **phép tích chập trong miền tần số**:
+* Cắt một đoạn tín hiệu hữu hạn bằng hàm cửa sổ $w[n]$ tương đương với phép nhân trong miền thời gian, tức là **phép tích chập trong miền tần số**:
   $$X_w(e^{j\omega}) = \frac{1}{2\pi} X(e^{j\omega}) * W(e^{j\omega})$$
-- **Về rò rỉ phổ (Spectral Leakage)**:
-  - Cửa sổ Chữ nhật (Rectangular) cắt cụt tín hiệu đột ngột ở hai đầu biên, tạo ra bước nhảy gián đoạn biên lớn. Bước nhảy này sinh ra các búp sóng phụ (*side-lobes*) có biên độ rất cao, đỉnh búp phụ thứ nhất chỉ suy giảm **$-13.3\text{ dB}$**. Năng lượng của đỉnh tần số chính sẽ tràn lan sang toàn bộ dải tần xung quanh, làm sàn nhiễu bị nâng lên cao, che lấp các hài âm nhỏ.
+* **Về rò rỉ phổ (Spectral Leakage)**:
+  - Cửa sổ Chữ nhật cắt cụt tín hiệu đột ngột ở hai mép biên, tạo ra bước nhảy gián đoạn biên lớn. Bước nhảy này sinh ra các búp sóng phụ (*side-lobes*) có biên độ rất cao, đỉnh búp phụ thứ nhất chỉ suy giảm **$-13.3\text{ dB}$**. Năng lượng của đỉnh tần số chính sẽ tràn lan sang toàn bộ dải tần xung quanh, làm sàn nhiễu bị nâng lên cao, che lấp các hài âm nhỏ.
   - Cửa sổ Hamming làm giảm dần biên độ về gần 0 ở hai mép biên ($w[0] = w[L-1] = 0.08$), triệt tiêu sự gián đoạn biên. Đỉnh búp phụ thứ nhất của Hamming bị nén sâu xuống **$-42.7\text{ dB}$** (tốt hơn gần $30\text{ dB}$ so với Rectangular), giúp triệt tiêu hiện tượng rò rỉ phổ xuất sắc, giữ nền phổ cực kỳ sạch sẽ.
-- **Về khả năng phân tách đỉnh (Frequency Resolution)**:
+* **Về khả năng phân tách đỉnh (Frequency Resolution)**:
   - Để nén các búp phụ xuống sâu, định luật bảo toàn năng lượng buộc năng lượng phải dồn vào búp sóng chính (*main-lobe*).
   - Độ rộng búp chính của cửa sổ Hamming rộng gấp đôi cửa sổ Chữ nhật:
     $$\text{Độ rộng búp chính Rectangular} = \frac{4\pi}{L} \quad \longleftrightarrow \quad \text{Độ rộng búp chính Hamming} = \frac{8\pi}{L}$$
-  - Búp chính rộng hơn sẽ làm các đỉnh phổ bị "phình to" ra. Nếu có hai thành phần tần số nằm sát nhau (khoảng cách tần số $< 8\pi/L$), búp chính của hai đỉnh sẽ hòa quyện và chồng lấn vào nhau thành một đỉnh bẹt duy nhất, khiến việc phân tách chúng trở nên bất khả thi. Trong khi đó, cửa sổ Chữ nhật với búp chính hẹp hơn vẫn có thể phân biệt được hai đỉnh này (với điều kiện hai đỉnh có biên độ gần tương đương).
+  - Búp chính rộng hơn sẽ làm các đỉnh phổ bị "phình to" ra. Nếu có hai thành phần tần số nằm sát nhau (khoảng cách tần số $< 8\pi/L$), búp chính của hai đỉnh sẽ hòa quyện và chồng lấn vào nhau thành một đỉnh bẹt duy nhất, khiến việc phân tách chúng trở nên bất khả thi.
 
 ---
 
@@ -383,12 +311,8 @@ Thực hiện lấy mẫu lại tín hiệu tiếng nói từ gốc $F_s = 44,10
    - Đổi sang đơn vị mili giây (ms):
      $$\tau = \frac{\tau_g}{F_s} \times 1000 = \frac{100}{44,100} \times 1000 \approx \mathbf{2.2676\text{ ms}}$$
 2. **Đánh giá trong xử lý thời gian thực**:
-   - **Mức độ ảnh hưởng**: Độ trễ $\approx 2.27\text{ ms}$ là **rất nhỏ và hoàn toàn an toàn** trong đại đa số các ứng dụng âm thanh thời gian thực.
-   - *Cơ sở thính giác (Hiệu ứng Haas / Ngưỡng trễ)*:
-     * Tai người chỉ bắt đầu nhận biết độ trễ âm thanh khi vượt quá $5 - 10\text{ ms}$ đối với kiểm âm trực tiếp (Live In-Ear Monitoring cho ca sĩ/nhạc công khi hát/chơi nhạc).
-     * Trong đàm thoại viễn thông hai chiều (VoIP, điện thoại), ngưỡng trễ chấp nhận được lên tới $150\text{ ms}$ (theo khuyến nghị ITU-T G.114).
-     * Do đó, mức trễ $2.27\text{ ms}$ hoàn toàn không thể nhận biết được bằng tai người và không gây ra hiện tượng méo tiếng hay tiếng vọng khó chịu.
-   - *Lưu ý kỹ thuật*: Nếu hệ thống ghép tầng hàng chục bộ lọc liên tiếp (*cascaded DSP blocks*) hoặc trong các hệ thống khử ồn chủ động (Active Noise Cancellation - ANC) đòi hỏi độ trễ dưới $1\text{ ms}$ để triệt tiêu sóng âm tới, độ trễ $2.27\text{ ms}$ có thể là đáng kể và khi đó cần cân nhắc chuyển sang bộ lọc IIR pha phi tuyến với độ trễ thấp hơn.
+   - Mức trễ $\approx 2.27\text{ ms}$ là **rất nhỏ và hoàn toàn an toàn** trong đại đa số các ứng dụng âm thanh thời gian thực.
+   - Tai người chỉ bắt đầu nhận biết độ trễ âm thanh khi vượt quá $5 - 10\text{ ms}$ (ngưỡng nhạy cảm của ca sĩ/nhạc công khi đeo tai nghe kiểm âm trực tiếp). Trong đàm thoại viễn thông hai chiều (VoIP), ngưỡng trễ cho phép lên tới $150\text{ ms}$ (chuẩn ITU-T G.114). Vì vậy, mức trễ $2.27\text{ ms}$ hoàn toàn không thể nhận biết được bằng tai người.
 
 ---
 
@@ -399,90 +323,80 @@ Thực hiện lấy mẫu lại tín hiệu tiếng nói từ gốc $F_s = 44,10
 2. **Ảnh hưởng của $B$ (Độ phân giải số bit)**:
    - Với bộ lượng tử hóa đều trong dải $[-X_{\max}, X_{\max}]$, bước lượng tử là $\Delta = \frac{2X_{\max}}{2^B}$.
    - Công suất nhiễu lượng tử giả định phân bố đều là $\sigma_e^2 \approx \frac{\Delta^2}{12} = \frac{4X_{\max}^2}{12 \cdot 2^{2B}}$.
-   - Mỗi khi tăng thêm 1 bit độ phân giải ($B \rightarrow B + 1$), bước lượng tử $\Delta$ giảm một nửa, công suất nhiễu $\sigma_e^2$ giảm đi 4 lần ($2^2 = 4$).
-   - Trên thang đo decibel:
-     $$10\log_{10}(4) \approx \mathbf{6.02\text{ dB}}$$
-   - Đây chính là nguồn gốc của **quy tắc 6 dB/bit**: Cứ thêm 1 bit, chất lượng âm thanh tăng thêm $\approx 6\text{ dB}$ SNR.
+   - Mỗi khi tăng thêm 1 bit độ phân giải ($B \rightarrow B + 1$), bước lượng tử $\Delta$ giảm một nửa, công suất nhiễu $\sigma_e^2$ giảm đi 4 lần.
+   - Trên thang đo decibel: $10\log_{10}(4) \approx \mathbf{6.02\text{ dB}}$ (Quy tắc $6\text{ dB/bit}$).
 3. **Ảnh hưởng của $\sigma_x$ và Lý do giảm mức tín hiệu làm giảm SNR**:
    - $\sigma_x$ là giá trị hiệu dụng (RMS) của tín hiệu đầu vào, thể hiện mức năng lượng thực tế của âm thanh.
    - Thành phần $-20\log_{10}(X_{\max}/\sigma_x)$ được gọi là **tổn hao dải dự trữ biên độ (Headroom Loss)**.
-   - Do bộ lượng tử hóa có thang đo cố định $[-X_{\max}, X_{\max}]$, khoảng bước $\Delta$ và công suất nhiễu lượng tử $\sigma_e^2 \approx \Delta^2/12$ là **hằng số không đổi**.
-   - Khi mức tín hiệu đầu vào $\sigma_x$ bị giảm (ví dụ: ca sĩ nói thầm, giảm âm lượng đầu vào), công suất tín hiệu $P_{sig} = \sigma_x^2$ giảm đi, trong khi công suất nhiễu lượng tử $\sigma_e^2$ vẫn giữ nguyên không đổi!
-   - Hậu quả là tỷ số tín hiệu trên nhiễu $SNR = 10\log_{10}(P_{sig}/\sigma_e^2)$ bị sụt giảm nghiêm trọng. Cụ thể, nếu giảm biên độ tín hiệu đi 2 lần ($-6\text{ dB}$ RMS), công suất tín hiệu giảm 4 lần, làm SNR lượng tử giảm ngay lập tức $6\text{ dB}$ (tương đương mất đi 1 bit lượng tử hiệu dụng – ENOB).
-   - *Ứng dụng thực tế*: Trong kỹ thuật thu âm phòng thu, kỹ sư âm thanh luôn căn chỉnh mức gain đầu vào sao cho tín hiệu đạt mức cao nhất có thể mà không chạm ngưỡng xén ngọn ($0\text{ dBFS}$) để tối đa hóa SNR.
+   - Do bộ lượng tử hóa có thang đo cố định $[-X_{\max}, X_{\max}]$, khoảng bước $\Delta$ và công suất nhiễu lượng tử $\sigma_e^2 \approx \Delta^2/12$ là **hằng số cố định**.
+   - Khi giảm mức tín hiệu đầu vào $\sigma_x$ (ví dụ ca sĩ nói thầm, giảm âm lượng nguồn phát), công suất tín hiệu $P_{sig} = \sigma_x^2$ bị giảm đi, trong khi công suất nhiễu lượng tử $\sigma_e^2$ vẫn giữ nguyên không đổi.
+   - Hậu quả là tỷ số tín hiệu trên nhiễu $SNR = 10\log_{10}(P_{sig}/\sigma_e^2)$ bị sụt giảm nghiêm trọng. Cụ thể, nếu giảm biên độ tín hiệu đi 2 lần ($-6\text{ dB}$ RMS), SNR lượng tử sẽ giảm ngay lập tức $6\text{ dB}$ (tương đương mất đi 1 bit lượng tử hiệu dụng – ENOB). Do đó, trong phòng thu âm, kỹ sư âm thanh luôn căn chỉnh gain đầu vào sao cho tín hiệu đạt mức cao nhất có thể mà không chạm ngưỡng xén ngọn ($0\text{ dBFS}$) để tối đa hóa SNR.
 
 ---
 
 ### Câu 6: Một file WAV 16-bit stereo 44.1 kHz dài 60 s có kích thước PCM lý thuyết bao nhiêu MB? So sánh với MP3 128 kbps.
 **Trả lời**:
 1. **Tính toán kích thước tệp WAV PCM 16-bit Stereo**:
-   - Tần số lấy mẫu: $F_s = 44,100\text{ Hz}$.
-   - Số bit trên mẫu: $B = 16\text{ bit} = 2\text{ bytes}$.
-   - Số kênh: $C = 2$ (Stereo).
-   - Tốc độ bit lý thuyết của dòng PCM:
+   - Tần số lấy mẫu: $F_s = 44,100\text{ Hz}$, Số bit/mẫu: $B = 16\text{ bit} = 2\text{ bytes}$, Số kênh: $C = 2$.
+   - Tốc độ bit dòng PCM:
      $$R_{PCM} = F_s \times B \times C = 44,100 \times 16 \times 2 = 1,411,200\text{ bit/s} = 176,400\text{ byte/s}$$
-   - Kích thước dữ liệu thuần cho thời lượng 60 giây:
+   - Dung lượng thuần cho $60\text{ giây}$:
      $$\text{Size}_{bytes} = 176,400\text{ byte/s} \times 60\text{ s} = 10,584,000\text{ bytes}$$
-   - Quy đổi sang Megabyte (MB):
-     - Theo chuẩn nhị phân máy tính ($1\text{ MB} = 1024^2\text{ bytes} = 1,048,576\text{ bytes}$):
+   - Quy đổi sang Megabyte:
+     - Chuẩn nhị phân ($1\text{ MB} = 1024^2\text{ bytes} = 1,048,576\text{ bytes}$):
        $$\text{Size}_{PCM} = \frac{10,584,000}{1,048,576} \approx \mathbf{10.0937\text{ MB}}$$
-     - Theo chuẩn thập phân lưu trữ ($1\text{ MB} = 10^6\text{ bytes}$): $\text{Size}_{PCM} = 10.584\text{ MB}$.
-     *(Nếu tính cả 44 bytes tiêu đề header chuẩn của file WAV thì kích thước là $10,584,044\text{ bytes} \approx 10.094\text{ MB}$)*.
+     - Chuẩn thập phân lưu trữ ($1\text{ MB} = 10^6\text{ bytes}$): $\text{Size}_{PCM} = 10.584\text{ MB}$.
 2. **Tính toán kích thước tệp MP3 128 kbps**:
    - Tốc độ bit: $R_{MP3} = 128\text{ kbps} = 128,000\text{ bit/s} = 16,000\text{ byte/s}$.
-   - Kích thước tệp cho 60 giây:
+   - Dung lượng cho $60\text{ giây}$:
      $$\text{Size}_{bytes} = 16,000\text{ byte/s} \times 60\text{ s} = 960,000\text{ bytes}$$
-   - Quy đổi sang Megabyte (MB):
+   - Quy đổi sang Megabyte:
      $$\text{Size}_{MP3} = \frac{960,000}{1,048,576} \approx \mathbf{0.9155\text{ MB}} \quad (\approx 0.960\text{ MB thập phân})$$
 3. **So sánh mức độ nén**:
    - **Tỷ số nén (Compression Ratio)**:
      $$CR = \frac{R_{PCM}}{R_{MP3}} = \frac{1,411,200\text{ bps}}{128,000\text{ bps}} = \frac{10.0937\text{ MB}}{0.9155\text{ MB}} = \mathbf{11.025 : 1}$$
    - **Phần trăm dung lượng tiết kiệm (Saving %)**:
      $$\text{Saving}(\%) = \left(1 - \frac{\text{Size}_{MP3}}{\text{Size}_{WAV}}\right) \times 100\% = \left(1 - \frac{1}{11.025}\right) \times 100\% \approx \mathbf{90.93\%}$$
-   - *Kết luận*: File nén MP3 128 kbps chỉ chiếm chưa đầy **$1/11$** dung lượng của file WAV gốc, giúp tiết kiệm gần $91\%$ không gian lưu trữ và băng thông truyền dẫn.
+   - *Kết luận*: File nén MP3 128 kbps chỉ chiếm chưa đầy **$1/11$** dung lượng của file WAV gốc, giúp tiết kiệm gần $91\%$ không gian lưu trữ và băng thông truyền dẫn mạng.
 
 ---
 
 ### Câu 7: Nêu ít nhất hai trường hợp mà “nghe tốt hơn” không đồng nghĩa với “SNR lớn hơn”.
 **Trả lời**:
 1. **Trường hợp 1: Mã hóa âm thanh cảm thụ (Perceptual Audio Coding - MP3, AAC, Opus, Vorbis)**:
-   - Các bộ mã hóa nén lossy sử dụng mô hình tâm lý thính giác (*psychoacoustic model*) để loại bỏ thông tin âm thanh ở các dải tần bị che khuất bởi hiện tượng che khuất đồng thời (*spectral masking*) hoặc che khuất theo thời gian (*temporal masking*).
-   - Về mặt toán học, dạng sóng sau giải mã bị sai lệch đáng kể so với dạng sóng gốc, dẫn đến phương sai sai số $\sum (x[n] - \hat{x}[n])^2$ rất lớn, khiến chỉ số SNR đo được chỉ đạt khoảng **$25 - 35\text{ dB}$** (tương đương lượng tử hóa 5-6 bit).
-   - Tuy nhiên, khi nghe thực tế, do nhiễu được cố ý "giấu" vào đúng các dải tần mà tai người bị che khuất, người nghe cảm nhận âm thanh hoàn toàn trong trẻo, tự nhiên, không thể phân biệt được với bản gốc WAV 16-bit (có SNR $> 90\text{ dB}$). Ngược lại, một file PCM lượng tử hóa 6-bit có cùng mức SNR $35\text{ dB}$ sẽ nghe thấy tiếng rè xì xào xạc vô cùng khó chịu.
+   - Các thuật toán nén lossy sử dụng mô hình tâm lý thính giác để loại bỏ các thành phần tần số bị che khuất bởi hiện tượng che khuất biên độ hoặc che khuất thời gian.
+   - Về mặt toán học, dạng sóng sau giải mã bị sai lệch đáng kể so với sóng gốc, dẫn đến chỉ số SNR đo được chỉ đạt khoảng **$25 - 35\text{ dB}$** (tương đương lượng tử hóa 5-6 bit).
+   - Tuy nhiên, vì nhiễu được cố tình giấu vào đúng các dải tần mà tai người không thể nhận biết, người nghe cảm nhận âm thanh hoàn toàn trong trẻo, tự nhiên như bản gốc WAV 16-bit (có SNR $> 90\text{ dB}$). Ngược lại, một file PCM lượng tử hóa 6-bit có cùng mức SNR $35\text{ dB}$ sẽ nghe thấy tiếng rè xào xạc vô cùng chói tai.
 2. **Trường hợp 2: Khử nhiễu nền và Lọc dải thông (Speech Denoising / Spectral Subtraction)**:
-   - Trong một bản ghi âm giọng nói bị lẫn tiếng quạt gió hoặc tiếng ù xoay chiều $50\text{ Hz}$, áp dụng thuật toán khử nhiễu phổ hoặc bộ lọc thông dải sẽ cắt bỏ dải tần dưới $80\text{ Hz}$ và dập tắt các thành phần nhiễu.
-   - Do thuật toán lọc không thể tách bạch hoàn hảo, nó sẽ làm suy giảm một phần năng lượng tín hiệu gốc và gây ra hiện tượng méo nhẹ dạng sóng.
-   - Nếu đo SNR so với tín hiệu ban đầu, chỉ số SNR toán học có thể bị giảm hoặc không tăng nhiều do sự sai lệch hình dạng sóng.
-   - Tuy nhiên, đối với tai người nghe, việc loại bỏ hoàn toàn tiếng ù xì nền gây mệt mỏi sẽ làm cho giọng nói trở nên nổi bật, dễ chịu hơn rất nhiều, tăng rõ rệt độ hiểu lời thoại (*Speech Intelligibility*).
-3. **Trường hợp bổ sung: Hiệu ứng bão hòa đèn / Băng từ (Analog Warmth / Tube Saturation)**:
-   - Trong sản xuất âm nhạc chuyên nghiệp, các kỹ sư thường cố tình đưa tín hiệu qua các mạch tiền khuếch đại đèn điện tử (Tube Preamp) hoặc máy ghi băng từ để tạo ra hiện tượng méo hài bậc chẵn nhẹ (*soft clipping / harmonic distortion*).
-   - Về mặt toán học, độ méo hài tổng THD tăng lên làm chỉ số SNR giảm. Tuy nhiên, về mặt cảm thụ nghệ thuật, các hài âm bậc chẵn tạo ra cảm giác âm thanh "ấm áp", "dày dặn", "ngọt ngào" và dễ chịu hơn hẳn so với tín hiệu số nguyên bản quá khô cứng.
+   - Trong một bản ghi âm giọng nói bị lẫn tiếng ù xoay chiều $50\text{ Hz}$ hoặc tiếng quạt gió, áp dụng bộ lọc cắt bỏ dải tần dưới $80\text{ Hz}$ và khử nhiễu phổ sẽ vô tình làm suy giảm một phần năng lượng giọng nói và méo nhẹ dạng sóng.
+   - So với tín hiệu gốc (chứa tạp âm), SNR đo được có thể giảm xuống do sai lệch hình dạng sóng.
+   - Tuy nhiên, việc loại bỏ hoàn toàn tiếng ù xì gây mệt mỏi giúp giọng nói nổi bật, dễ chịu hơn rất nhiều cho tai người nghe, tăng rõ rệt độ rõ của lời thoại (*Speech Intelligibility*).
+3. **Trường hợp bổ sung: Hiệu ứng bão hòa đèn điện tử (Analog Tube Warmth / Harmonic Saturation)**:
+   - Trong sản xuất âm nhạc, các kỹ sư thường cố tình đưa tín hiệu qua mạch đèn điện tử để tạo méo hài bậc chẵn nhẹ (*soft saturation*). Méo hài làm giảm chỉ số SNR đo đạc, nhưng lại mang lại cảm giác âm thanh "ấm áp", "dày dặn" và truyền cảm hơn hẳn tín hiệu số nguyên bản quá khô cứng.
 
 ---
 
-## 5. Checklist kiểm tra trước khi nộp bài (Thang điểm 10/10)
+## 7. Kết luận & Hướng dẫn Tái lập Thực nghiệm (Reproducibility)
 
-| Hạng mục | Điểm | Tiêu chí đánh giá | Trạng thái đạt được |
-| :--- | :---: | :--- | :---: |
-| **Chuẩn bị & Metadata** | **1.0** | Đọc đúng dữ liệu, chuẩn hóa biên độ, trích xuất đầy đủ Fs/channels/duration. | ĐẠT (100%) |
-| **Time/FFT Analysis** | **2.0** | Vẽ Waveform toàn phần/zoom, tính Peak/RMS/Energy, FFT đúng trục Hz/dB. | ĐẠT (100%) |
-| **STFT/Window Experiment** | **2.0** | Spectrogram đa khung thời gian, phân tích trade-off, so sánh rò rỉ phổ cửa sổ. | ĐẠT (100%) |
-| **Filtering (Lọc số)** | **2.0** | Thiết kế FIR đúng, có đáp ứng $H(f)$, xuất file audio và vẽ phổ trước/sau. | ĐẠT (100%) |
-| **Quantization/Coding** | **1.5** | Tính SNR đo đạc vs lý thuyết, tính bitrate, file size, tỷ số nén MP3. | ĐẠT (100%) |
-| **Phân tích & Trình bày** | **1.0** | Giải thích kỹ thuật sâu sắc, hình ảnh trực quan, bảng số liệu rõ ràng. | ĐẠT (100%) |
-| **Tái lập & Tổ chức mã nguồn** | **0.5** | Notebook chạy từ đầu đến cuối không lỗi (Run All), cấu trúc file chuẩn. | ĐẠT (100%) |
-| **TỔNG ĐIỂM DỰ KIẾN** | **10.0 / 10.0** | **Xuất sắc - Hoàn thành toàn diện mọi yêu cầu bài Lab** | |
+### 7.1. Kết luận rút ra sau bài thực hành
+1. **Khái niệm tần số trong thế giới số**: Tần số lấy mẫu $F_s$ là giới hạn tuyệt đối phân định thế giới số và thế giới thực; mọi thao tác lấy mẫu, lọc hay nén đều phải tôn trọng định lý Nyquist–Shannon để tránh hiện tượng chồng phổ thảm họa.
+2. **Bản chất của STFT và Spectrogram**: Không có một độ dài cửa sổ thời gian nào là hoàn hảo cho mọi mục đích. Việc lựa chọn $N_{frame}$ luôn là sự thỏa hiệp có chủ đích giữa độ phân giải thời gian và độ phân giải tần số.
+3. **Bộ lọc FIR pha tuyến tính**: Khả năng bảo toàn hình dạng sóng và độ trễ nhóm không đổi khiến bộ lọc FIR trở thành lựa chọn hàng đầu trong các ứng dụng đo lường và xử lý tiếng nói chất lượng cao.
+4. **Mô hình tâm lý thính giác**: Kỹ thuật số không đơn thuần là xử lý toán học thuần túy; việc kết hợp các đặc tính cảm thụ sinh học của tai người chính là chìa khóa tạo nên các công nghệ đột phá như MP3, AAC hay các bộ mã hóa hiện đại.
+
+### 7.2. Hướng dẫn chạy lại mã nguồn
+Toàn bộ mã nguồn thực nghiệm đã được đóng gói hoàn chỉnh trong tệp Jupyter Notebook [`Lab01_2351260682.ipynb`](Lab01_2351260682.ipynb). Thầy cô và các bạn có thể tái lập 100% kết quả theo các bước sau:
+
+1. **Cài đặt môi trường Python**:
+   ```bash
+   pip install numpy scipy matplotlib soundfile librosa pydub
+   ```
+2. **Khởi chạy Jupyter Notebook**:
+   ```bash
+   jupyter notebook Lab01_2351260682.ipynb
+   ```
+3. **Thực thi toàn bộ mã nguồn**:
+   Chọn menu **Kernel** $\rightarrow$ **Restart & Run All**. Toàn bộ 8 khối mã nguồn sẽ tự động thực thi tuần tự từ Khối 0 đến Khối G, tái tạo toàn bộ số liệu thống kê, xuất ra 13 tệp âm thanh trong thư mục `audio/` và lưu 8 đồ thị khoa học trong thư mục `figures/`.
 
 ---
-
-## 6. Hướng dẫn nộp bài lên GitHub
-Sinh viên đẩy toàn bộ thư mục lên kho chứa GitHub cá nhân ở chế độ **Công khai (Public)**:
-```bash
-git init
-git add .
-git commit -m "Hoàn thành toàn bộ bài thực hành Lab 1 CSE457 - Nguyễn Thị Nam Phương"
-git branch -M main
-git remote add origin https://github.com/<tai-khoan-github>/Lab01_2351260682_NguyenThiNamPhuong.git
-git push -u origin main
-```
-
+*Báo cáo được hoàn thành vào ngày 21/09/2026 bởi sinh viên Nguyễn Thị Nam Phương - Lớp 65TTNT, Khoa CNTT, Trường Đại học Thủy lợi.*
