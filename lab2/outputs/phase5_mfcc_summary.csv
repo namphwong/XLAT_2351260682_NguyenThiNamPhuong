@@ -1,0 +1,26 @@
+﻿file,label,split,trimmed_duration_s,n_frames,n_mfcc,shape,dropped_tail_samples,max_cmn_mean_residual,feature_file,input_sha256
+khong/khong_01.wav,khong,train,0.815,80,13,"(80, 13)",0,4.2099657093785935e-14,features/mfcc/khong/khong_01.npz,8e5473caf9f290a6e65298d28062ceb2c9d9d39c92c189f696416d293ca61721
+khong/khong_02.wav,khong,train,0.895,88,13,"(88, 13)",0,2.90676573720041e-15,features/mfcc/khong/khong_02.npz,32ec7dbc2755b9af68e1b088fc10305dcc268fd9b19c98794bc5417a2b0d5d67
+khong/khong_03.wav,khong,train,0.875,86,13,"(86, 13)",0,6.113972377470629e-15,features/mfcc/khong/khong_03.npz,89c24a03f993112c6283eaba701a6090e8e114a10bf419ac8f5c731dbd4bf408
+khong/khong_04.wav,khong,test,0.425,41,13,"(41, 13)",0,2.4955647304744982e-14,features/mfcc/khong/khong_04.npz,9668d347bd88419367a59c4fbe731c2a5b45a1d8b320734f88697679d86d69a5
+khong/khong_05.wav,khong,test,0.695,68,13,"(68, 13)",0,1.5673736818237505e-14,features/mfcc/khong/khong_05.npz,54dea9434dda0970398495522b40b0887bb5f5a7289c61dc60c4a6ea62e1bb55
+mot/mot_01.wav,mot,train,0.625,61,13,"(61, 13)",0,2.0966834825707876e-14,features/mfcc/mot/mot_01.npz,ba592595d3728f010eaede76f8b198d7db748a587186e72d72b5e735564ac7a6
+mot/mot_02.wav,mot,train,0.895,88,13,"(88, 13)",0,3.270111454350461e-15,features/mfcc/mot/mot_02.npz,4494282fe28f1e0e4dc7e4a446320f37dcb21a834d2c88a5ae55d9bda0734de2
+mot/mot_03.wav,mot,train,0.455,44,13,"(44, 13)",0,1.2717100100251794e-15,features/mfcc/mot/mot_03.npz,4a719e4734d95f43d26ae1e8dc35d8b92bf650a4342a9c5a9c77c856ad3fa416
+mot/mot_04.wav,mot,test,0.745,73,13,"(73, 13)",0,2.701035742101751e-15,features/mfcc/mot/mot_04.npz,f1cc19c83d6f634b268ea0cc5930cd427bac1ad3c755f4200e1a3f11f98c81ad
+mot/mot_05.wav,mot,test,0.475,46,13,"(46, 13)",0,8.032222230331567e-15,features/mfcc/mot/mot_05.npz,a50ca3d489618bce4625385a78d685407d76fccffc90adf976b677763ee321fb
+hai/hai_01.wav,hai,train,0.775,76,13,"(76, 13)",0,1.5519749228444293e-14,features/mfcc/hai/hai_01.npz,e4de76dcadfa40621c8475e02e2cac858b25fa111df838219a72f523a87831e8
+hai/hai_02.wav,hai,train,0.665,65,13,"(65, 13)",0,3.935313613440555e-14,features/mfcc/hai/hai_02.npz,1cc72b936a542a1b6f7232abc8e9828d93f58971916852ecd740b4e3462311b7
+hai/hai_03.wav,hai,train,0.475,46,13,"(46, 13)",0,4.325042739409306e-15,features/mfcc/hai/hai_03.npz,aa9574cf324da58ebf047f3c879d97906d5e734eb1bc8384d956e73574e61dad
+hai/hai_04.wav,hai,test,0.675,66,13,"(66, 13)",0,8.827955201867911e-15,features/mfcc/hai/hai_04.npz,57fede8d2f87c8900245c1d726f59a663be626540645f1f9a121e279b63a1299
+hai/hai_05.wav,hai,test,0.625,61,13,"(61, 13)",0,1.3278995389614988e-14,features/mfcc/hai/hai_05.npz,eda02f75498cf53fd77af4180defaf2092c7817a6224e2cbc39a2475f9a96899
+ba/ba_01.wav,ba,train,0.925,91,13,"(91, 13)",0,1.4210854715202004e-14,features/mfcc/ba/ba_01.npz,5494da7b497c5c4a65022ddd69546bc7cce2e039ad1a7dc11feb88410749ba3c
+ba/ba_02.wav,ba,train,0.935,92,13,"(92, 13)",0,3.413694447890916e-14,features/mfcc/ba/ba_02.npz,a6a347c08209202430b30e06a453426f71f4157abd4ebbdfc583651f994e7a6e
+ba/ba_03.wav,ba,train,0.725,71,13,"(71, 13)",0,2.5619569064026148e-14,features/mfcc/ba/ba_03.npz,90bd706c9fc4b0112b59e6ef79d8bfbf2548ca71e2e3c14d420b8a8c96e97119
+ba/ba_04.wav,ba,test,1.775,176,13,"(176, 13)",0,4.5216355912006375e-15,features/mfcc/ba/ba_04.npz,c0428ad7036aa8cb638be0d1728009922e2d9815645df4709011c0e6c0efdfcd
+ba/ba_05.wav,ba,test,0.555,54,13,"(54, 13)",0,6.315935428978668e-15,features/mfcc/ba/ba_05.npz,f25781901147f8bf9abf47ba88a8a4ca19697ffb30d7f7d29413a62db41b9d6c
+bon/bon_01.wav,bon,train,0.605,59,13,"(59, 13)",0,1.25248211049238e-14,features/mfcc/bon/bon_01.npz,09f212a4dd8c153d91e90cc98891017a2e79cb0ae2b98d41e525cc5dc9355afe
+bon/bon_02.wav,bon,train,1.305,129,13,"(129, 13)",0,1.4761663037496656e-14,features/mfcc/bon/bon_02.npz,86a8f3455975161265c30c6e7bb43a7600b682991696fb8bff16b0b8c21502b8
+bon/bon_03.wav,bon,train,0.465,45,13,"(45, 13)",0,5.052748343182935e-15,features/mfcc/bon/bon_03.npz,bc3acace0aebde00d2cdf5bbf6ff169fc2711e2b89d48e3d2e023ab22ddbbf1a
+bon/bon_04.wav,bon,test,0.585,57,13,"(57, 13)",0,2.991758887410948e-15,features/mfcc/bon/bon_04.npz,87c11ecc1506942176efc089c8e32233e5ace1ee0943dc998ac8851180e1a745
+bon/bon_05.wav,bon,test,0.535,52,13,"(52, 13)",0,1.041901607725147e-15,features/mfcc/bon/bon_05.npz,57d497da9838da71712ef095a303783b1a9e1fe5fa6bf37d2e7d9af497587b46

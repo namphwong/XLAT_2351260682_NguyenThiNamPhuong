@@ -1,0 +1,159 @@
+{
+  "n_test": 10,
+  "n_correct": 8,
+  "n_errors": 2,
+  "accuracy": 0.8,
+  "top_k_correct": {
+    "1": 8,
+    "2": 10,
+    "3": 10
+  },
+  "top_k_accuracy": {
+    "1": 0.8,
+    "2": 1.0,
+    "3": 1.0
+  },
+  "labels": [
+    "khong",
+    "mot",
+    "hai",
+    "ba",
+    "bon"
+  ],
+  "confusion_matrix": [
+    [
+      0,
+      0,
+      2,
+      0,
+      0
+    ],
+    [
+      0,
+      2,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      2,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      2,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      2
+    ]
+  ],
+  "confusion_matrix_row_normalized": [
+    [
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "confusion_matrix_axes": "rows=true labels, columns=predicted labels",
+  "zero_division": 0,
+  "per_label": [
+    {
+      "label": "khong",
+      "support": 2,
+      "correct": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    {
+      "label": "mot",
+      "support": 2,
+      "correct": 2,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    {
+      "label": "hai",
+      "support": 2,
+      "correct": 2,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6666666666666666
+    },
+    {
+      "label": "ba",
+      "support": 2,
+      "correct": 2,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    {
+      "label": "bon",
+      "support": 2,
+      "correct": 2,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    }
+  ],
+  "macro_precision": 0.7,
+  "macro_recall": 0.8,
+  "macro_f1": 0.7333333333333333,
+  "variant": "trim_mfcc_delta26",
+  "dimensions": 26,
+  "endpoint_applied": true,
+  "delta": {
+    "order": 1,
+    "radius_frames": 2,
+    "boundary": "edge replication",
+    "weight": 1.0,
+    "input": "13 static MFCC after per-utterance CMN",
+    "extra_delta_cmn": false,
+    "units": "coefficient change per frame; not per second"
+  },
+  "split_sha256": "e6d5d8deb3b662391c7a61dd0fe5cd414a858851626b6360d655856ae11b6968",
+  "n_templates": 15,
+  "dtw_grid_cells": 777974
+}

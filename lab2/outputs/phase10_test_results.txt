@@ -1,0 +1,23 @@
+test_euclidean_example (test_lab2_dtw.DTWTests.test_euclidean_example) ... ok
+test_exhaustive_small_sequences (test_lab2_dtw.DTWTests.test_exhaustive_small_sequences) ... ok
+test_identical_and_repeated_frames (test_lab2_dtw.DTWTests.test_identical_and_repeated_frames) ... ok
+test_invalid_inputs (test_lab2_dtw.DTWTests.test_invalid_inputs) ... ok
+test_path_sum (test_lab2_dtw.DTWTests.test_path_sum) ... ok
+test_counts_axes_normalization_and_top_k (test_lab2_evaluation.EvaluationTests.test_counts_axes_normalization_and_top_k) ... ok
+test_every_test_required_and_baseline_reproduction (test_lab2_evaluation.EvaluationTests.test_every_test_required_and_baseline_reproduction) ... ok
+test_reject_bad_rows (test_lab2_evaluation.EvaluationTests.test_reject_bad_rows) ... ok
+test_controlled_extraction_changes_only_one_factor (test_lab2_experiments.ExperimentTests.test_controlled_extraction_changes_only_one_factor) ... ok
+test_delta_known_ramp_and_edges (test_lab2_experiments.ExperimentTests.test_delta_known_ramp_and_edges) ... ok
+test_delta_translation_invariance_and_bad_input (test_lab2_experiments.ExperimentTests.test_delta_translation_invariance_and_bad_input) ... ok
+test_ranking_matches_recognizer_and_supports_26_dimensions (test_lab2_experiments.ExperimentTests.test_ranking_matches_recognizer_and_supports_26_dimensions) ... ok
+test_format_silence_and_stale_configuration (test_lab2_recognizer.RecognizerTests.test_format_silence_and_stale_configuration) ... ok
+test_held_out_wav_matches_cached_feature_scores (test_lab2_recognizer.RecognizerTests.test_held_out_wav_matches_cached_feature_scores) ... ok
+test_minimum_per_label_and_distinct_top_three (test_lab2_recognizer.RecognizerTests.test_minimum_per_label_and_distinct_top_three) ... ok
+test_only_train_templates (test_lab2_recognizer.RecognizerTests.test_only_train_templates) ... ok
+test_tie_order_and_invalid_features (test_lab2_recognizer.RecognizerTests.test_tie_order_and_invalid_features) ... ok
+test_training_audio_and_copy_are_rejected (test_lab2_recognizer.RecognizerTests.test_training_audio_and_copy_are_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.374s
+
+OK

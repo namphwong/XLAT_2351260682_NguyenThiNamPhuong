@@ -1,0 +1,5 @@
+﻿file,margin_ms,start_s,end_s,after_s,onset_frame_time_s,full_onset_frame_kept
+khong/khong_01.wav,0,1.96,2.615,0.655,2.03246875,True
+khong/khong_01.wav,50,1.91,2.665,0.755,2.03246875,True
+khong/khong_01.wav,80,1.88,2.695,0.815,2.03246875,True
+khong/khong_01.wav,120,1.84,2.735,0.895,2.03246875,True

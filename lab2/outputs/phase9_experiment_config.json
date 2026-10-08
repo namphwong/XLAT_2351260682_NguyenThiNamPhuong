@@ -1,0 +1,164 @@
+{
+  "variants": [
+    {
+      "name": "trim_mfcc13",
+      "trim": true,
+      "include_delta": false,
+      "dimensions": 13
+    },
+    {
+      "name": "no_trim_mfcc13",
+      "trim": false,
+      "include_delta": false,
+      "dimensions": 13
+    },
+    {
+      "name": "trim_mfcc_delta26",
+      "trim": true,
+      "include_delta": true,
+      "dimensions": 26
+    }
+  ],
+  "delta": {
+    "order": 1,
+    "radius_frames": 2,
+    "boundary": "edge replication",
+    "weight": 1.0,
+    "input": "13 static MFCC after per-utterance CMN",
+    "extra_delta_cmn": false,
+    "units": "coefficient change per frame; not per second"
+  },
+  "mfcc": {
+    "sample_rate": 16000,
+    "frame_length": 400,
+    "hop_length": 160,
+    "n_fft": 512,
+    "n_mels": 24,
+    "n_mfcc": 13,
+    "alpha": 0.97,
+    "use_cmn": true,
+    "eps": 1e-09,
+    "window": "symmetric Hamming",
+    "mel_formula": "1125 * ln(1 + f/700)",
+    "mel_filter_norm": "peak triangles; no area normalization",
+    "power": "abs(rfft)^2 / n_fft",
+    "log": "natural log(mel_energy + eps)",
+    "dct": "type 2, orthonormal",
+    "coefficients": "C0-C12",
+    "frame_policy": "full 400-sample frames, then pad FFT to 512",
+    "feature_shape": "T x 13",
+    "cmn": "per utterance, axis=0",
+    "endpoint_config": {
+      "frame_length": 400,
+      "hop_length": 160,
+      "high_top_db": 18,
+      "low_top_db": 30,
+      "noise_high_db": 12,
+      "noise_low_db": 6,
+      "min_speech_ms": 120,
+      "gap_ms": 40,
+      "extend_ms": 150,
+      "margin_ms": 80,
+      "zcr_threshold": 0.1,
+      "use_zcr": true,
+      "eps": 1e-09
+    },
+    "split_sha256": "e6d5d8deb3b662391c7a61dd0fe5cd414a858851626b6360d655856ae11b6968"
+  },
+  "dtw": {
+    "local_distance": "Euclidean",
+    "steps": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "boundary": "start (0,0), end (N-1,M-1)",
+    "objective": "minimum total cost",
+    "normalization": "total optimal cost / number of frame pairs",
+    "tie_rule": "minimum total cost, then shorter path, then diagonal/vertical/horizontal",
+    "warping_band": null,
+    "feature_dimensions": 13,
+    "feature_config": {
+      "sample_rate": 16000,
+      "frame_length": 400,
+      "hop_length": 160,
+      "n_fft": 512,
+      "n_mels": 24,
+      "n_mfcc": 13,
+      "alpha": 0.97,
+      "use_cmn": true,
+      "eps": 1e-09,
+      "window": "symmetric Hamming",
+      "mel_formula": "1125 * ln(1 + f/700)",
+      "mel_filter_norm": "peak triangles; no area normalization",
+      "power": "abs(rfft)^2 / n_fft",
+      "log": "natural log(mel_energy + eps)",
+      "dct": "type 2, orthonormal",
+      "coefficients": "C0-C12",
+      "frame_policy": "full 400-sample frames, then pad FFT to 512",
+      "feature_shape": "T x 13",
+      "cmn": "per utterance, axis=0",
+      "endpoint_config": {
+        "frame_length": 400,
+        "hop_length": 160,
+        "high_top_db": 18,
+        "low_top_db": 30,
+        "noise_high_db": 12,
+        "noise_low_db": 6,
+        "min_speech_ms": 120,
+        "gap_ms": 40,
+        "extend_ms": 150,
+        "margin_ms": 80,
+        "zcr_threshold": 0.1,
+        "use_zcr": true,
+        "eps": 1e-09
+      },
+      "split_sha256": "e6d5d8deb3b662391c7a61dd0fe5cd414a858851626b6360d655856ae11b6968"
+    }
+  },
+  "split_sha256": "e6d5d8deb3b662391c7a61dd0fe5cd414a858851626b6360d655856ae11b6968",
+  "source_hashes": {
+    "khong/khong_01.wav": "929486dcb3d62cc7ae8db876851d9cef7c69291ddebd187be6d42ea7964c2811",
+    "khong/khong_02.wav": "2478bfd6b4288be9612cd8c225666436a4f962f4eb496c5dab8b14b43589b78b",
+    "khong/khong_03.wav": "39795dbe84f47a8a6b037d74657667e7a1e6d8c5ccc5e83d8ae57425853f55f4",
+    "khong/khong_04.wav": "dca0da2033f0b08e0d3c7c29deb2f964ede37adec1ccc61c2f30876695034002",
+    "khong/khong_05.wav": "1264d814d56f9191f659f816b5ce0c480438df706a72e1146b6fa097ad26ee80",
+    "mot/mot_01.wav": "4a6cc259da1e41f070a398c6105e2cb777783b5a2bb90aa13e4c881a76df5ba4",
+    "mot/mot_02.wav": "97e27919192ac361ede8326a6a881380d6347f388a15354a0fe8ef52a9dd0dc2",
+    "mot/mot_03.wav": "0f62ea6943ddebc17c86ee7a45d6d4d5f6e12bbb35bf1d92e9d493f35ee4beb8",
+    "mot/mot_04.wav": "2bcdb916011f5c8a4c69d2a57b6c7ce19ac2244c2211debf6a799236e67ba9e7",
+    "mot/mot_05.wav": "6c27c6ccae905e759ff77aa2781687b8aa34a31c6097df69533c0fc88f5d2224",
+    "hai/hai_01.wav": "149e35bfad779f999793da92d1ac3c24f9fe25d8279f9dca3aee2d491497e435",
+    "hai/hai_02.wav": "2b671932796544a38077a4ee50156eed5ea8cbabdebbb8ce9598aeab8f2763b2",
+    "hai/hai_03.wav": "90a01322fed14f11349b98560c0cabec8bfa26fde42f3b62ef5cc58b64ccecce",
+    "hai/hai_04.wav": "ea00d67a320cae5ebe6db5a1efbdeb47e901bfc5d2472d92ca61d5732bcfeece",
+    "hai/hai_05.wav": "a5b04ac3d8abf00e4735b7cb312858cfd4f4c731667ce6a64f895ddbf211c2d8",
+    "ba/ba_01.wav": "6ef4dcc49f6853b5a18403a2e0192bf6ee385c3bf4afb5bc6c69b9b31a19a5c4",
+    "ba/ba_02.wav": "a02c2cf373e13f0a0838bb29bb3c6d1e71ec3e96468c573aac8e7c7438b9cd22",
+    "ba/ba_03.wav": "059bea659a4ec811b2c1a70678e827e233be7768f84393d497cf6f2bc8c9a82e",
+    "ba/ba_04.wav": "a84bb1d06abd56194102eef28a44843c0fd4b8139a2baa66d0e26ad2ed591364",
+    "ba/ba_05.wav": "d2976ebd60fc89db5cf36b133c10512dcfffa08edcfc731338c7fc7814c2d0d4",
+    "bon/bon_01.wav": "537e2aaf889fd1d9fd9879a45ece795b212c87cc1e13a4e3e43fb07837a01f86",
+    "bon/bon_02.wav": "d6d4333c5c04f2047f505047538e8a5b1ef63b62aa249bb59d31dfff66e6f036",
+    "bon/bon_03.wav": "b344a6bc75fa4f2f2053d81edae1e95de86bd9569c3057d45d9035504c2d6ceb",
+    "bon/bon_04.wav": "8223461ad31e2e5fa78b9e4b1e87ff43696df57a269d3b0fc577debc1680d815",
+    "bon/bon_05.wav": "db86907df5caf154e2983cb45134e2ef4df215920f6d7f567886ac498b63f641"
+  },
+  "policy": "one changed factor per E1/E2; fresh features on train and test; no test tuning",
+  "code_sha256": {
+    "lab2_experiments.py": "3d2d69f2a961af46fcedd8fa102cc9ffd203fe7e65943cbd8f7856315c2060b7",
+    "lab2_dtw.py": "f31454fdd7a2e095354f540cdd76ef43a7d8e2017cad10cf7f61b8cb92c9fe17",
+    "lab2_mfcc.py": "f0d5ddf78f5ae728790f9e410e0c9d7f3a2730b917fadac1546e62726418491c",
+    "lab2_endpoint.py": "902f12a2c0dd5e2d8a6c8b67b562ee91d4633d4aedd148b0772337035e8d6b0a",
+    "lab2_evaluation.py": "1a640e152285fd17b3f7ad76a5c890c9f7e469a90ad4b41391da9eaa17ca9234"
+  }
+}

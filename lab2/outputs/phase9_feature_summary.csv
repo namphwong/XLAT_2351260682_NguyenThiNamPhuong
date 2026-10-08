@@ -1,0 +1,76 @@
+﻿variant,file,label,split,trim,n_frames,dimensions,input_duration_s,feature_audio_duration_s,start_sample,end_sample,endpoint_warnings
+trim_mfcc13,khong/khong_01.wav,khong,train,True,80,13,4.248,0.815,30080,43120,
+trim_mfcc13,khong/khong_02.wav,khong,train,True,88,13,3.696,0.895,10880,25200,
+trim_mfcc13,khong/khong_03.wav,khong,train,True,86,13,1.896,0.875,3840,17840,
+trim_mfcc13,khong/khong_04.wav,khong,test,True,41,13,2.208,0.425,18880,25680,
+trim_mfcc13,khong/khong_05.wav,khong,test,True,68,13,3.432,0.695,28960,40080,
+trim_mfcc13,mot/mot_01.wav,mot,train,True,61,13,2.208,0.625,14080,24080,
+trim_mfcc13,mot/mot_02.wav,mot,train,True,88,13,2.16,0.895,11360,25680,
+trim_mfcc13,mot/mot_03.wav,mot,train,True,44,13,2.088,0.455,18080,25360,
+trim_mfcc13,mot/mot_04.wav,mot,test,True,73,13,2.76,0.745,24640,36560,
+trim_mfcc13,mot/mot_05.wav,mot,test,True,46,13,2.328,0.475,12800,20400,
+trim_mfcc13,hai/hai_01.wav,hai,train,True,76,13,2.088,0.775,10240,22640,
+trim_mfcc13,hai/hai_02.wav,hai,train,True,65,13,2.496,0.665,23840,34480,
+trim_mfcc13,hai/hai_03.wav,hai,train,True,46,13,1.824,0.475,9600,17200,
+trim_mfcc13,hai/hai_04.wav,hai,test,True,66,13,2.256,0.675,16480,27280,Có vùng năng lượng khác ngoài vùng chính; cần nghe để xác nhận không phải tiếng nói
+trim_mfcc13,hai/hai_05.wav,hai,test,True,61,13,3.792,0.625,24640,34640,Nền đầu/cuối có thể chứa âm mạnh; dùng ngưỡng tương đối theo peak; Có vùng năng lượng khác ngoài vùng chính; cần nghe để xác nhận không phải tiếng nói
+trim_mfcc13,ba/ba_01.wav,ba,train,True,91,13,1.992,0.925,9920,24720,Có vùng năng lượng khác ngoài vùng chính; cần nghe để xác nhận không phải tiếng nói
+trim_mfcc13,ba/ba_02.wav,ba,train,True,92,13,2.64,0.935,12640,27600,Có vùng năng lượng khác ngoài vùng chính; cần nghe để xác nhận không phải tiếng nói
+trim_mfcc13,ba/ba_03.wav,ba,train,True,71,13,3.36,0.725,30400,42000,
+trim_mfcc13,ba/ba_04.wav,ba,test,True,176,13,3.648,1.775,14080,42480,
+trim_mfcc13,ba/ba_05.wav,ba,test,True,54,13,2.28,0.555,14240,23120,
+trim_mfcc13,bon/bon_01.wav,bon,train,True,59,13,1.704,0.605,7360,17040,Có vùng năng lượng khác ngoài vùng chính; cần nghe để xác nhận không phải tiếng nói
+trim_mfcc13,bon/bon_02.wav,bon,train,True,129,13,2.76,1.305,11040,31920,
+trim_mfcc13,bon/bon_03.wav,bon,train,True,45,13,1.656,0.465,10080,17520,
+trim_mfcc13,bon/bon_04.wav,bon,test,True,57,13,2.16,0.585,16160,25520,Có vùng năng lượng khác ngoài vùng chính; cần nghe để xác nhận không phải tiếng nói
+trim_mfcc13,bon/bon_05.wav,bon,test,True,52,13,2.04,0.535,9920,18480,Có vùng năng lượng khác ngoài vùng chính; cần nghe để xác nhận không phải tiếng nói
+no_trim_mfcc13,khong/khong_01.wav,khong,train,False,423,13,4.248,4.248,0,67968,
+no_trim_mfcc13,khong/khong_02.wav,khong,train,False,368,13,3.696,3.696,0,59136,
+no_trim_mfcc13,khong/khong_03.wav,khong,train,False,188,13,1.896,1.896,0,30336,
+no_trim_mfcc13,khong/khong_04.wav,khong,test,False,219,13,2.208,2.208,0,35328,
+no_trim_mfcc13,khong/khong_05.wav,khong,test,False,341,13,3.432,3.432,0,54912,
+no_trim_mfcc13,mot/mot_01.wav,mot,train,False,219,13,2.208,2.208,0,35328,
+no_trim_mfcc13,mot/mot_02.wav,mot,train,False,214,13,2.16,2.16,0,34560,
+no_trim_mfcc13,mot/mot_03.wav,mot,train,False,207,13,2.088,2.088,0,33408,
+no_trim_mfcc13,mot/mot_04.wav,mot,test,False,274,13,2.76,2.76,0,44160,
+no_trim_mfcc13,mot/mot_05.wav,mot,test,False,231,13,2.328,2.328,0,37248,
+no_trim_mfcc13,hai/hai_01.wav,hai,train,False,207,13,2.088,2.088,0,33408,
+no_trim_mfcc13,hai/hai_02.wav,hai,train,False,248,13,2.496,2.496,0,39936,
+no_trim_mfcc13,hai/hai_03.wav,hai,train,False,180,13,1.824,1.824,0,29184,
+no_trim_mfcc13,hai/hai_04.wav,hai,test,False,224,13,2.256,2.256,0,36096,
+no_trim_mfcc13,hai/hai_05.wav,hai,test,False,377,13,3.792,3.792,0,60672,
+no_trim_mfcc13,ba/ba_01.wav,ba,train,False,197,13,1.992,1.992,0,31872,
+no_trim_mfcc13,ba/ba_02.wav,ba,train,False,262,13,2.64,2.64,0,42240,
+no_trim_mfcc13,ba/ba_03.wav,ba,train,False,334,13,3.36,3.36,0,53760,
+no_trim_mfcc13,ba/ba_04.wav,ba,test,False,363,13,3.648,3.648,0,58368,
+no_trim_mfcc13,ba/ba_05.wav,ba,test,False,226,13,2.28,2.28,0,36480,
+no_trim_mfcc13,bon/bon_01.wav,bon,train,False,168,13,1.704,1.704,0,27264,
+no_trim_mfcc13,bon/bon_02.wav,bon,train,False,274,13,2.76,2.76,0,44160,
+no_trim_mfcc13,bon/bon_03.wav,bon,train,False,164,13,1.656,1.656,0,26496,
+no_trim_mfcc13,bon/bon_04.wav,bon,test,False,214,13,2.16,2.16,0,34560,
+no_trim_mfcc13,bon/bon_05.wav,bon,test,False,202,13,2.04,2.04,0,32640,
+trim_mfcc_delta26,khong/khong_01.wav,khong,train,True,80,26,4.248,0.815,30080,43120,
+trim_mfcc_delta26,khong/khong_02.wav,khong,train,True,88,26,3.696,0.895,10880,25200,
+trim_mfcc_delta26,khong/khong_03.wav,khong,train,True,86,26,1.896,0.875,3840,17840,
+trim_mfcc_delta26,khong/khong_04.wav,khong,test,True,41,26,2.208,0.425,18880,25680,
+trim_mfcc_delta26,khong/khong_05.wav,khong,test,True,68,26,3.432,0.695,28960,40080,
+trim_mfcc_delta26,mot/mot_01.wav,mot,train,True,61,26,2.208,0.625,14080,24080,
+trim_mfcc_delta26,mot/mot_02.wav,mot,train,True,88,26,2.16,0.895,11360,25680,
+trim_mfcc_delta26,mot/mot_03.wav,mot,train,True,44,26,2.088,0.455,18080,25360,
+trim_mfcc_delta26,mot/mot_04.wav,mot,test,True,73,26,2.76,0.745,24640,36560,
+trim_mfcc_delta26,mot/mot_05.wav,mot,test,True,46,26,2.328,0.475,12800,20400,
+trim_mfcc_delta26,hai/hai_01.wav,hai,train,True,76,26,2.088,0.775,10240,22640,
+trim_mfcc_delta26,hai/hai_02.wav,hai,train,True,65,26,2.496,0.665,23840,34480,
+trim_mfcc_delta26,hai/hai_03.wav,hai,train,True,46,26,1.824,0.475,9600,17200,
+trim_mfcc_delta26,hai/hai_04.wav,hai,test,True,66,26,2.256,0.675,16480,27280,Có vùng năng lượng khác ngoài vùng chính; cần nghe để xác nhận không phải tiếng nói
+trim_mfcc_delta26,hai/hai_05.wav,hai,test,True,61,26,3.792,0.625,24640,34640,Nền đầu/cuối có thể chứa âm mạnh; dùng ngưỡng tương đối theo peak; Có vùng năng lượng khác ngoài vùng chính; cần nghe để xác nhận không phải tiếng nói
+trim_mfcc_delta26,ba/ba_01.wav,ba,train,True,91,26,1.992,0.925,9920,24720,Có vùng năng lượng khác ngoài vùng chính; cần nghe để xác nhận không phải tiếng nói
+trim_mfcc_delta26,ba/ba_02.wav,ba,train,True,92,26,2.64,0.935,12640,27600,Có vùng năng lượng khác ngoài vùng chính; cần nghe để xác nhận không phải tiếng nói
+trim_mfcc_delta26,ba/ba_03.wav,ba,train,True,71,26,3.36,0.725,30400,42000,
+trim_mfcc_delta26,ba/ba_04.wav,ba,test,True,176,26,3.648,1.775,14080,42480,
+trim_mfcc_delta26,ba/ba_05.wav,ba,test,True,54,26,2.28,0.555,14240,23120,
+trim_mfcc_delta26,bon/bon_01.wav,bon,train,True,59,26,1.704,0.605,7360,17040,Có vùng năng lượng khác ngoài vùng chính; cần nghe để xác nhận không phải tiếng nói
+trim_mfcc_delta26,bon/bon_02.wav,bon,train,True,129,26,2.76,1.305,11040,31920,
+trim_mfcc_delta26,bon/bon_03.wav,bon,train,True,45,26,1.656,0.465,10080,17520,
+trim_mfcc_delta26,bon/bon_04.wav,bon,test,True,57,26,2.16,0.585,16160,25520,Có vùng năng lượng khác ngoài vùng chính; cần nghe để xác nhận không phải tiếng nói
+trim_mfcc_delta26,bon/bon_05.wav,bon,test,True,52,26,2.04,0.535,9920,18480,Có vùng năng lượng khác ngoài vùng chính; cần nghe để xác nhận không phải tiếng nói

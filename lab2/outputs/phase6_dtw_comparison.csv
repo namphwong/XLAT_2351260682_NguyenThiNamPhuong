@@ -1,0 +1,3 @@
+﻿type,file_x,file_y,n_frames,m_frames,total_cost,path_length,dtw_norm,diagonal_steps,vertical_steps,horizontal_steps,mean_normalized_diagonal_deviation
+same_word,khong/khong_01.wav,khong/khong_02.wav,80,88,914.0538785182245,94,9.723977431044942,73,6,14,0.02503010546975367
+different_word,khong/khong_01.wav,mot/mot_01.wav,80,61,981.7919849894704,80,12.27239981236838,60,19,0,0.06555907172995781

@@ -1,0 +1,11 @@
+﻿file,true_label,predicted_label,winning_template,score_gap,n_frames,endpoint_warnings,top1_label,top1_score,top1_template,top2_label,top2_score,top2_template,top3_label,top3_score,top3_template
+khong/khong_04.wav,khong,hai,hai/hai_02.wav,0.7551295290694551,41,,hai,6.342907860248758,hai/hai_02.wav,bon,7.098037389318213,bon/bon_03.wav,khong,7.10465833732014,khong/khong_02.wav
+khong/khong_05.wav,khong,hai,hai/hai_02.wav,0.08518493011864692,68,,hai,6.734468457906033,hai/hai_02.wav,khong,6.81965338802468,khong/khong_02.wav,bon,7.776631812602069,bon/bon_03.wav
+mot/mot_04.wav,mot,mot,mot/mot_01.wav,1.7455045870730022,73,,mot,4.742079901692872,mot/mot_01.wav,bon,6.487584488765874,bon/bon_03.wav,ba,7.94433657999985,ba/ba_02.wav
+mot/mot_05.wav,mot,mot,mot/mot_03.wav,1.352958748202136,46,,mot,4.973201596485003,mot/mot_03.wav,bon,6.326160344687139,bon/bon_03.wav,ba,6.926911853767254,ba/ba_02.wav
+hai/hai_04.wav,hai,hai,hai/hai_01.wav,2.6827975891849167,66,Có vùng năng lượng khác ngoài vùng chính; cần nghe để xác nhận không phải tiếng nói,hai,5.883987590717936,hai/hai_01.wav,ba,8.566785179902853,ba/ba_03.wav,khong,8.65725645605626,khong/khong_02.wav
+hai/hai_05.wav,hai,hai,hai/hai_03.wav,2.0780290090287545,61,Nền đầu/cuối có thể chứa âm mạnh; dùng ngưỡng tương đối theo peak; Có vùng năng lượng khác ngoài vùng chính; cần nghe để xác nhận không phải tiếng nói,hai,6.146397147872315,hai/hai_03.wav,ba,8.22442615690107,ba/ba_01.wav,khong,8.37856678753144,khong/khong_02.wav
+ba/ba_04.wav,ba,ba,ba/ba_01.wav,1.1401385610717254,176,,ba,5.651276716655811,ba/ba_01.wav,khong,6.791415277727537,khong/khong_03.wav,hai,7.392624763953766,hai/hai_03.wav
+ba/ba_05.wav,ba,ba,ba/ba_02.wav,0.09563785775708755,54,,ba,6.894792507523033,ba/ba_02.wav,mot,6.990430365280121,mot/mot_03.wav,khong,7.815825583057693,khong/khong_03.wav
+bon/bon_04.wav,bon,bon,bon/bon_01.wav,2.8959668515516546,57,Có vùng năng lượng khác ngoài vùng chính; cần nghe để xác nhận không phải tiếng nói,bon,4.153889348379176,bon/bon_01.wav,mot,7.04985619993083,mot/mot_03.wav,khong,9.083370743700637,khong/khong_02.wav
+bon/bon_05.wav,bon,bon,bon/bon_02.wav,1.8139911367753143,52,Có vùng năng lượng khác ngoài vùng chính; cần nghe để xác nhận không phải tiếng nói,bon,8.818119524208164,bon/bon_02.wav,khong,10.632110660983479,khong/khong_03.wav,mot,11.102136550576233,mot/mot_02.wav

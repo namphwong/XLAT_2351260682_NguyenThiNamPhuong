@@ -1,0 +1,19 @@
+﻿file,type,frame_index,time_s,log_energy_db,zcr,acf_peak,f0_candidate_hz
+khong/khong_01.wav,Nền năng lượng thấp,0,0.0125,-90.0,0.0,0.0,
+khong/khong_01.wav,Hữu thanh ứng viên,221,2.2225,-12.575,0.1275,0.7874,253.97
+khong/khong_01.wav,ZCR cao (chưa xác nhận vô thanh),258,2.5925,-25.911,0.13,0.7353,235.29
+khong/khong_01.wav,Vô thanh/nhiễu ứng viên,202,2.0325,-38.393,0.1675,0.281,
+mot/mot_01.wav,Nền năng lượng thấp,0,0.0125,-90.0,0.0,0.0,
+mot/mot_01.wav,Hữu thanh ứng viên,104,1.0525,-16.839,0.03,0.8611,262.3
+mot/mot_01.wav,ZCR cao (chưa xác nhận vô thanh),116,1.1725,-20.14,0.1425,0.8178,222.22
+hai/hai_01.wav,Nền năng lượng thấp,0,0.0125,-90.0,0.0,0.0,
+hai/hai_01.wav,Hữu thanh ứng viên,75,0.7625,-23.484,0.0375,0.8587,246.15
+hai/hai_01.wav,ZCR cao (chưa xác nhận vô thanh),99,1.0025,-24.177,0.1925,0.8151,250.0
+hai/hai_01.wav,Vô thanh/nhiễu ứng viên,68,0.6925,-55.419,0.25,0.2271,
+ba/ba_01.wav,Nền năng lượng thấp,0,0.0125,-90.0,0.0,0.0,
+ba/ba_01.wav,Hữu thanh ứng viên,73,0.7425,-22.62,0.03,0.8243,235.29
+ba/ba_01.wav,ZCR cao (chưa xác nhận vô thanh),97,0.9825,-21.872,0.1925,0.7701,213.33
+ba/ba_01.wav,Vô thanh/nhiễu ứng viên,56,0.5725,-52.174,0.185,0.1389,
+bon/bon_01.wav,Nền năng lượng thấp,0,0.0125,-90.0,0.0,0.0,
+bon/bon_01.wav,Hữu thanh ứng viên,58,0.5925,-17.699,0.0275,0.8245,219.18
+bon/bon_01.wav,ZCR cao (chưa xác nhận vô thanh),77,0.7825,-29.772,0.1025,0.7904,205.13

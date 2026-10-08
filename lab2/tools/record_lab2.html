@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Thu âm Lab 2</title>
+<style>
+body{font:17px system-ui;background:#f1f5f9;color:#152638;margin:0;padding:30px}main{max-width:850px;margin:auto;background:white;padding:30px;border-radius:18px}h1{margin-top:0}button{font:inherit;border:0;border-radius:9px;background:#116466;color:white;padding:12px 18px;margin:5px 5px 5px 0;cursor:pointer}button:disabled{opacity:.4;cursor:default}.box{background:#eef6f5;padding:18px;border-radius:12px;margin:18px 0}#word{font-size:35px;font-weight:700}canvas{width:100%;height:140px;background:#f8fafc;border:1px solid #ddd;border-radius:8px}audio{width:100%;margin:15px 0}select{font:inherit;padding:8px}#status{white-space:pre-line}li{margin:9px 0}.muted{color:#536475}
+</style></head><body><main>
+<h1>Thu âm từ đơn · Lab 2</h1>
+<p>Thu 5 lần độc lập cho mỗi từ: không, một, hai, ba, bốn. WAV được lưu ở mono, PCM 16-bit, 16 kHz.</p>
+<ol><li>Mở trang bằng Chrome/Edge qua địa chỉ localhost theo README_Lab2.md.</li><li>Chọn thư mục <b>dataset</b> của dự án. Trình duyệt sẽ hỏi quyền ghi file và dùng micro khi bạn bắt đầu.</li><li>Bấm thu, chờ khoảng 0,3 giây, nói đúng một từ rồi giữ yên khoảng 0,3 giây trước khi bấm dừng. Nghe lại và lưu khi đạt chất lượng.</li></ol>
+<button id="folder">Chọn thư mục dataset</button><span id="folderName" class="muted"> Chưa chọn</span>
+<div class="box"><label>Từ cần thu: <select id="label"><option value="khong">không</option><option value="mot">một</option><option value="hai">hai</option><option value="ba">ba</option><option value="bon">bốn</option></select></label>
+<p id="word">không · lần 01</p><p id="progress">Đang kiểm tra các file đã lưu…</p></div>
+<button id="start">Bắt đầu thu</button><button id="stop" disabled>Dừng thu</button><button id="save" disabled>Lưu bản ghi</button>
+<canvas id="wave" width="1000" height="160"></canvas><audio id="player" controls></audio>
+<p id="status" role="status">Dữ liệu được xử lý tại máy và lưu vào thư mục bạn chọn.</p>
+<p class="muted">Nếu thấy clipping hoặc nghe sai/mất từ, bấm Bắt đầu thu để thu lại trước khi lưu. Các file đã có được giữ nguyên. Không tạo thêm bản ghi bằng cách sao chép một file.</p>
+</main><script>
+const labels=['khong','mot','hai','ba','bon'], names={khong:'không',mot:'một',hai:'hai',ba:'ba',bon:'bốn'};
+const el=id=>document.getElementById(id);
+let folder,ctx,stream,source,node,gain,chunks=[],recording=false,recordedLabel,blob,objectURL;
+let counts=Object.fromEntries(labels.map(x=>[x,0])), next=1;
+function status(s){el('status').textContent=s;}
+async function refresh(){
+ let label=el('label').value;let occupied=[];
+ for(const l of labels){
+  let found=[];
+  if(folder){const dir=await folder.getDirectoryHandle(l,{create:true});for await(const [name,handle] of dir.entries())if(handle.kind==='file'&&new RegExp('^'+l+'_\\d+\\.wav$','i').test(name))found.push(Number(name.match(/_(\d+)\.wav$/i)[1]));}
+  counts[l]=found.length;if(l===label)occupied=found;
+ }
+ next=1;while(occupied.includes(next))next++;
+ el('word').textContent=names[label]+' · lần '+String(next).padStart(2,'0');
+ el('progress').textContent=labels.map(l=>names[l]+': '+counts[l]+'/5').join('  |  ');
+ if(labels.every(l=>counts[l]>=5))status('Đã đủ số lượng 25 file trở lên. Tiếp theo chạy notebook Phase 2 để kiểm tra định dạng, tín hiệu và chia train/test.');
+}
+el('folder').onclick=async()=>{try{if(!window.showDirectoryPicker)throw Error('Hãy dùng Chrome/Edge trên máy tính để chọn thư mục.');folder=await window.showDirectoryPicker({mode:'readwrite'});el('folderName').textContent=folder.name;await refresh();}catch(e){status(e.message);}};
+el('label').onchange=async()=>{blob=null;el('save').disabled=true;await refresh();};
+function wav(samples,sr){
+ const buffer=new ArrayBuffer(44+samples.length*2),v=new DataView(buffer);
+ const str=(offset,s)=>{for(let i=0;i<s.length;i++)v.setUint8(offset+i,s.charCodeAt(i));};
+ str(0,'RIFF');v.setUint32(4,36+samples.length*2,true);str(8,'WAVE');str(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,sr,true);v.setUint32(28,sr*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);str(36,'data');v.setUint32(40,samples.length*2,true);
+ for(let i=0;i<samples.length;i++){const s=Math.max(-1,Math.min(1,samples[i]));v.setInt16(44+2*i,s<0?s*32768:s*32767,true);}
+ return new Blob([buffer],{type:'audio/wav'});
+}
+async function resample(samples,sourceRate){
+ if(sourceRate===16000)return samples;
+ const length=Math.max(1,Math.round(samples.length*16000/sourceRate));
+ const offline=new OfflineAudioContext(1,length,16000);const b=offline.createBuffer(1,samples.length,sourceRate);b.copyToChannel(samples,0);const s=offline.createBufferSource();s.buffer=b;s.connect(offline.destination);s.start();return (await offline.startRendering()).getChannelData(0);
+}
+function draw(samples){const c=el('wave'),g=c.getContext('2d');g.clearRect(0,0,c.width,c.height);g.strokeStyle='#116466';g.beginPath();for(let x=0;x<c.width;x++){const a=Math.floor(x*samples.length/c.width),b=Math.min(samples.length,Math.max(a+1,Math.floor((x+1)*samples.length/c.width)));let lo=1,hi=-1;for(let i=a;i<b;i++){lo=Math.min(lo,samples[i]);hi=Math.max(hi,samples[i]);}g.moveTo(x,80-lo*75);g.lineTo(x,80-hi*75);}g.stroke();}
+function enable(){el('start').disabled=false;el('stop').disabled=true;el('label').disabled=false;el('folder').disabled=false;}
+async function release(){if(node){node.disconnect();node.onaudioprocess=null;}if(source)source.disconnect();if(gain)gain.disconnect();if(stream)stream.getTracks().forEach(t=>t.stop());if(ctx&&ctx.state!=='closed')await ctx.close();}
+el('start').onclick=async()=>{
+ if(!folder){status('Chọn thư mục dataset trước khi thu âm.');return;}
+ el('start').disabled=true;el('folder').disabled=true;el('label').disabled=true;el('save').disabled=true;blob=null;
+ try{
+  await refresh();recordedLabel=el('label').value;
+  stream=await navigator.mediaDevices.getUserMedia({audio:{channelCount:1,echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+  ctx=new AudioContext();await ctx.resume();chunks=[];source=ctx.createMediaStreamSource(stream);node=ctx.createScriptProcessor(4096,1,1);gain=ctx.createGain();gain.gain.value=0;
+  node.onaudioprocess=e=>{if(recording)chunks.push(new Float32Array(e.inputBuffer.getChannelData(0)));};
+  source.connect(node);node.connect(gain);gain.connect(ctx.destination);recording=true;el('stop').disabled=false;status('Đang thu '+names[recordedLabel]+'. Chờ 0,3 s → nói một từ → chờ 0,3 s → Dừng thu.');
+ }catch(e){recording=false;await release();enable();status('Không thu được: '+e.message);}
+};
+el('stop').onclick=async()=>{
+ recording=false;el('stop').disabled=true;
+ try{
+  const sr=ctx.sampleRate;await release();const length=chunks.reduce((n,c)=>n+c.length,0);if(!length)throw Error('Chưa thu được tín hiệu.');
+  const all=new Float32Array(length);let offset=0;for(const c of chunks){all.set(c,offset);offset+=c.length;}
+  const y=await resample(all,sr);let peak=0,clip=0;for(const s of y){peak=Math.max(peak,Math.abs(s));if(Math.abs(s)>=0.999)clip++;}
+  draw(y);blob=wav(y,16000);if(objectURL)URL.revokeObjectURL(objectURL);objectURL=URL.createObjectURL(blob);el('player').src=objectURL;
+  const silent=peak<0.00001;el('save').disabled=silent;
+  status('Đã thu '+(y.length/16000).toFixed(2)+' giây. Peak: '+peak.toFixed(3)+'. '+(clip?'Có mẫu gần full-scale: nên nghe và thu lại với âm lượng thấp hơn.':silent?'Không có tín hiệu: kiểm tra micro và thu lại.':'Nghe lại trước khi lưu.'));
+ }catch(e){blob=null;status(e.message);}finally{enable();}
+};
+el('save').onclick=async()=>{el('save').disabled=true;try{
+ if(!blob||!folder)throw Error('Chưa có bản ghi để lưu.');
+ const dir=await folder.getDirectoryHandle(recordedLabel,{create:true});const name=recordedLabel+'_'+String(next).padStart(2,'0')+'.wav';
+ try{await dir.getFileHandle(name);throw Error('File đã tồn tại; chọn lần mới để tránh ghi đè.');}catch(e){if(e.name!=='NotFoundError')throw e;}
+ const handle=await dir.getFileHandle(name,{create:true});const writer=await handle.createWritable();await writer.write(blob);await writer.close();blob=null;
+ if(counts[recordedLabel]+1>=5){const remaining=labels.find(l=>l!==recordedLabel&&counts[l]<5);if(remaining)el('label').value=remaining;}
+ status('Đã lưu '+recordedLabel+'/'+name+'.');await refresh();
+ }catch(e){status(e.message);el('save').disabled=!blob;}};
+refresh();
+</script></body></html>

@@ -1,0 +1,11 @@
+﻿file,true_label,trim_mfcc13_prediction,trim_mfcc13_correct,trim_mfcc13_true_rank,no_trim_mfcc13_prediction,no_trim_mfcc13_correct,no_trim_mfcc13_true_rank,trim_mfcc_delta26_prediction,trim_mfcc_delta26_correct,trim_mfcc_delta26_true_rank
+khong/khong_04.wav,khong,hai,False,3,mot,False,4,hai,False,2
+khong/khong_05.wav,khong,hai,False,2,mot,False,4,hai,False,2
+mot/mot_04.wav,mot,mot,True,1,mot,True,1,mot,True,1
+mot/mot_05.wav,mot,mot,True,1,mot,True,1,mot,True,1
+hai/hai_04.wav,hai,hai,True,1,hai,True,1,hai,True,1
+hai/hai_05.wav,hai,hai,True,1,hai,True,1,hai,True,1
+ba/ba_04.wav,ba,ba,True,1,ba,True,1,ba,True,1
+ba/ba_05.wav,ba,ba,True,1,mot,False,5,ba,True,1
+bon/bon_04.wav,bon,bon,True,1,bon,True,1,bon,True,1
+bon/bon_05.wav,bon,bon,True,1,bon,True,1,bon,True,1

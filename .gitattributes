@@ -1,0 +1,9 @@
+# Preserve exact bytes of Lab 2 files: manifests/configurations use SHA-256.
+* text=auto
+lab2/** -text
+
+*.wav binary
+*.mp3 binary
+*.png binary
+*.npz binary
+*.pdf binary

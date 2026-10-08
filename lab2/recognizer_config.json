@@ -1,0 +1,122 @@
+{
+  "method": "closed-set nearest template",
+  "label_score": "minimum normalized DTW over 3 train templates",
+  "tie_break": "score, label alphabetical, template filename alphabetical",
+  "top_k": 3,
+  "unknown_rejection": false,
+  "query_input": "original untrimmed WAV PCM_16 mono 16000 Hz",
+  "training_files": [
+    "khong/khong_01.wav",
+    "khong/khong_02.wav",
+    "khong/khong_03.wav",
+    "mot/mot_01.wav",
+    "mot/mot_02.wav",
+    "mot/mot_03.wav",
+    "hai/hai_01.wav",
+    "hai/hai_02.wav",
+    "hai/hai_03.wav",
+    "ba/ba_01.wav",
+    "ba/ba_02.wav",
+    "ba/ba_03.wav",
+    "bon/bon_01.wav",
+    "bon/bon_02.wav",
+    "bon/bon_03.wav"
+  ],
+  "mfcc": {
+    "sample_rate": 16000,
+    "frame_length": 400,
+    "hop_length": 160,
+    "n_fft": 512,
+    "n_mels": 24,
+    "n_mfcc": 13,
+    "alpha": 0.97,
+    "use_cmn": true,
+    "eps": 1e-09,
+    "window": "symmetric Hamming",
+    "mel_formula": "1125 * ln(1 + f/700)",
+    "mel_filter_norm": "peak triangles; no area normalization",
+    "power": "abs(rfft)^2 / n_fft",
+    "log": "natural log(mel_energy + eps)",
+    "dct": "type 2, orthonormal",
+    "coefficients": "C0-C12",
+    "frame_policy": "full 400-sample frames, then pad FFT to 512",
+    "feature_shape": "T x 13",
+    "cmn": "per utterance, axis=0",
+    "endpoint_config": {
+      "frame_length": 400,
+      "hop_length": 160,
+      "high_top_db": 18,
+      "low_top_db": 30,
+      "noise_high_db": 12,
+      "noise_low_db": 6,
+      "min_speech_ms": 120,
+      "gap_ms": 40,
+      "extend_ms": 150,
+      "margin_ms": 80,
+      "zcr_threshold": 0.1,
+      "use_zcr": true,
+      "eps": 1e-09
+    },
+    "split_sha256": "e6d5d8deb3b662391c7a61dd0fe5cd414a858851626b6360d655856ae11b6968"
+  },
+  "dtw": {
+    "local_distance": "Euclidean",
+    "steps": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "boundary": "start (0,0), end (N-1,M-1)",
+    "objective": "minimum total cost",
+    "normalization": "total optimal cost / number of frame pairs",
+    "tie_rule": "minimum total cost, then shorter path, then diagonal/vertical/horizontal",
+    "warping_band": null,
+    "feature_dimensions": 13,
+    "feature_config": {
+      "sample_rate": 16000,
+      "frame_length": 400,
+      "hop_length": 160,
+      "n_fft": 512,
+      "n_mels": 24,
+      "n_mfcc": 13,
+      "alpha": 0.97,
+      "use_cmn": true,
+      "eps": 1e-09,
+      "window": "symmetric Hamming",
+      "mel_formula": "1125 * ln(1 + f/700)",
+      "mel_filter_norm": "peak triangles; no area normalization",
+      "power": "abs(rfft)^2 / n_fft",
+      "log": "natural log(mel_energy + eps)",
+      "dct": "type 2, orthonormal",
+      "coefficients": "C0-C12",
+      "frame_policy": "full 400-sample frames, then pad FFT to 512",
+      "feature_shape": "T x 13",
+      "cmn": "per utterance, axis=0",
+      "endpoint_config": {
+        "frame_length": 400,
+        "hop_length": 160,
+        "high_top_db": 18,
+        "low_top_db": 30,
+        "noise_high_db": 12,
+        "noise_low_db": 6,
+        "min_speech_ms": 120,
+        "gap_ms": 40,
+        "extend_ms": 150,
+        "margin_ms": 80,
+        "zcr_threshold": 0.1,
+        "use_zcr": true,
+        "eps": 1e-09
+      },
+      "split_sha256": "e6d5d8deb3b662391c7a61dd0fe5cd414a858851626b6360d655856ae11b6968"
+    }
+  }
+}

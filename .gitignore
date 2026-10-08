@@ -9,3 +9,18 @@ __pycache__/
 # IDE configs
 .vscode/
 .idea/
+
+# Local Python environment for Lab 2
+.venv-lab2/
+.venv/
+venv/
+
+# Local scratch files and PDF preview images
+tmp/
+*.log
+.DS_Store
+Thumbs.db
+
+# Local environment values
+.env
+.env.*

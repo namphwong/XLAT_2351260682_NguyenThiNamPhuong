@@ -1,0 +1,5 @@
+﻿query_file,true_label,predicted_label,comparison,template_file,query_frames,template_frames,query_trim_s,template_trim_s,dtw_norm,total_cost,path_length,diagonal_steps,vertical_steps,horizontal_steps,mean_normalized_diagonal_deviation
+khong/khong_04.wav,khong,hai,predicted,hai/hai_02.wav,41,65,0.425,0.665,6.342907860248758,412.2890109161693,65,40,0,24,0.03894230769230769
+khong/khong_04.wav,khong,hai,true_label,khong/khong_02.wav,41,88,0.425,0.895,7.10465833732014,625.2099336841724,88,40,0,47,0.039958855799373035
+khong/khong_05.wav,khong,hai,predicted,hai/hai_02.wav,68,65,0.695,0.665,6.734468457906033,511.8196028008585,76,56,11,8,0.084633370974077
+khong/khong_05.wav,khong,hai,true_label,khong/khong_02.wav,68,88,0.695,0.895,6.81965338802468,627.4081116982705,92,63,4,24,0.09209760791246172
